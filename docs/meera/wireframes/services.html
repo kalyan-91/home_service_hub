@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Service Catalog - Wireframe</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="navbar">
+    <strong>HomeService OS</strong>
+    <div><a href="index.html">← Back</a></div>
+  </div>
+
+  <div class="container">
+    <h1>Service Catalog</h1>
+
+    <label>Search / Filter by category</label>
+    <input type="text" placeholder="e.g. Electrical, Plumbing, AC Service">
+
+    <div class="card-grid" style="margin-top:16px;">
+      <div class="card">
+        <div class="placeholder-box"></div>
+        <strong>Electrical Repair</strong>
+        <p><span class="badge">₹300 - ₹800</span><span class="badge">Skill: Electrician</span></p>
+        <button>View Details</button>
+      </div>
+      <div class="card">
+        <div class="placeholder-box"></div>
+        <strong>AC Service</strong>
+        <p><span class="badge">₹500 - ₹1200</span><span class="badge">Skill: AC Technician</span></p>
+        <button>View Details</button>
+      </div>
+      <div class="card">
+        <div class="placeholder-box"></div>
+        <strong>Plumbing</strong>
+        <p><span class="badge">₹250 - ₹700</span><span class="badge">Skill: Plumber</span></p>
+        <button>View Details</button>
+      </div>
+    </div>
+
+    <h1 style="margin-top:30px;">Service Detail (example)</h1>
+    <div class="card">
+      <div class="placeholder-box"></div>
+      <strong>AC Service</strong>
+      <p>Description: Cleaning, gas check and general servicing of split/window AC units.</p>
+      <p><span class="badge">Estimated Price: ₹500-₹1200</span><span class="badge">Duration: 1-2 hrs</span><span class="badge">Skill: AC Technician</span></p>
+      <button class="btn">Book this Service</button>
+    </div>
+
+    <p class="wireframe-note">Fields sourced from Member 1's <code>services</code> table: service_id, name, description, category, estimated_price, required_skill, estimated_duration.</p>
+  </div>
+</body>
+</html>
