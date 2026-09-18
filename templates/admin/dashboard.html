@@ -1,1 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HomeService OS — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
 
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">Home<span>Service</span> OS<small>Admin control panel</small></div>
+    <nav id="nav">
+      <button class="nav-btn active" data-section="dashboard"><span class="dot"></span>Dashboard</button>
+      <button class="nav-btn" data-section="customers"><span class="dot"></span>Customers</button>
+      <button class="nav-btn" data-section="technicians"><span class="dot"></span>Technicians</button>
+      <button class="nav-btn" data-section="bookings"><span class="dot"></span>Bookings</button>
+      <button class="nav-btn" data-section="complaints"><span class="dot"></span>Complaints</button>
+      <button class="nav-btn" data-section="reviews"><span class="dot"></span>Reviews</button>
+      <button class="nav-btn" data-section="notifications"><span class="dot"></span>Send notification</button>
+    </nav>
+    <div class="rail-foot">Phase 1 UI · connects to /api/admin</div>
+  </aside>
+
+  <main>
+
+    <!-- DASHBOARD -->
+    <section id="sec-dashboard" class="active">
+      <div class="page-head">
+        <div><h1>Dashboard</h1><p>Platform-wide activity at a glance.</p></div>
+        <button class="refresh-btn" onclick="load('dashboard')">Refresh</button>
+      </div>
+      <div id="dashboard-body"><div class="load">Loading statistics…</div></div>
+    </section>
+
+    <!-- CUSTOMERS -->
+    <section id="sec-customers">
+      <div class="page-head">
+        <div><h1>Customers</h1><p>Everyone registered with a customer account.</p></div>
+        <button class="refresh-btn" onclick="load('customers')">Refresh</button>
+      </div>
+      <div id="customers-body"><div class="load">Loading customers…</div></div>
+    </section>
+
+    <!-- TECHNICIANS -->
+    <section id="sec-technicians">
+      <div class="page-head">
+        <div><h1>Technicians</h1><p>Verify technician accounts before they can accept bookings.</p></div>
+        <button class="refresh-btn" onclick="load('technicians')">Refresh</button>
+      </div>
+      <div id="technicians-body"><div class="load">Loading technicians…</div></div>
+    </section>
+
+    <!-- BOOKINGS -->
+    <section id="sec-bookings">
+      <div class="page-head">
+        <div><h1>Bookings</h1><p>All service bookings across the platform.</p></div>
+        <button class="refresh-btn" onclick="load('bookings')">Refresh</button>
+      </div>
+      <div class="filter-row" id="booking-filters">
+        <button class="chip active" data-status="">All</button>
+        <button class="chip" data-status="Pending">Pending</button>
+        <button class="chip" data-status="Confirmed">Confirmed</button>
+        <button class="chip" data-status="Completed">Completed</button>
+        <button class="chip" data-status="Cancelled">Cancelled</button>
+      </div>
+      <div id="bookings-body"><div class="load">Loading bookings…</div></div>
+    </section>
+
+    <!-- COMPLAINTS -->
+    <section id="sec-complaints">
+      <div class="page-head">
+        <div><h1>Complaints</h1><p>Issues raised by customers or technicians.</p></div>
+        <button class="refresh-btn" onclick="load('complaints')">Refresh</button>
+      </div>
+      <div id="complaints-body"><div class="load">Loading complaints…</div></div>
+    </section>
+
+    <!-- REVIEWS -->
+    <section id="sec-reviews">
+      <div class="page-head">
+        <div><h1>Reviews</h1><p>Customer reviews left for completed jobs.</p></div>
+        <button class="refresh-btn" onclick="load('reviews')">Refresh</button>
+      </div>
+      <div id="reviews-body"><div class="load">Loading reviews…</div></div>
+    </section>
+
+    <!-- NOTIFICATIONS -->
+    <section id="sec-notifications">
+      <div class="page-head">
+        <div><h1>Send notification</h1><p>Push a message straight to a user's inbox.</p></div>
+      </div>
+      <div class="form-card">
+        <form id="notif-form">
+          <div class="field">
+            <label for="notif-user">User ID</label>
+            <input id="notif-user" type="number" min="1" required placeholder="e.g. 104">
+          </div>
+          <div class="field">
+            <label for="notif-type">Type</label>
+            <select id="notif-type">
+              <option value="system">System</option>
+              <option value="booking">Booking</option>
+              <option value="payment">Payment</option>
+              <option value="alert">Alert</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="notif-message">Message</label>
+            <textarea id="notif-message" required placeholder="What should this user see?"></textarea>
+          </div>
+          <button class="submit-btn" type="submit">Send notification</button>
+          <div id="notif-note" class="form-note"></div>
+        </form>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>
