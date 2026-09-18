@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HomeService OS — Customer</title>
+</head>
+<body>
+
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">Home<span>Service</span> OS<small>Customer account</small></div>
+    <nav id="nav">
+      <button class="nav-btn active" data-section="dashboard"><span class="dot"></span>Dashboard</button>
+      <button class="nav-btn" data-section="profile"><span class="dot"></span>Profile</button>
+      <button class="nav-btn" data-section="homes"><span class="dot"></span>Homes</button>
+      <button class="nav-btn" data-section="appliances"><span class="dot"></span>Appliances</button>
+      <button class="nav-btn" data-section="security"><span class="dot"></span>Security</button>
+    </nav>
+    <div class="rail-foot">Connects to /api/customer</div>
+  </aside>
+
+  <main>
+
+    <!-- DASHBOARD -->
+    <section id="sec-dashboard" class="active">
+      <div class="page-head">
+        <div><h1>Dashboard</h1><p>Your homes and appliances at a glance.</p></div>
+        <button class="refresh-btn" id="dashboard-refresh">Refresh</button>
+      </div>
+      <div class="stat-grid" id="dashboard-body">
+        <div class="stat-card">
+          <div class="num" id="stat-home-count">—</div>
+          <div class="label">Homes on file</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="stat-appliance-count">—</div>
+          <div class="label">Appliances tracked</div>
+        </div>
+      </div>
+      <div id="dashboard-homes-body"><div class="load">Loading homes…</div></div>
+    </section>
+
+    <!-- PROFILE -->
+    <section id="sec-profile">
+      <div class="page-head">
+        <div><h1>Profile</h1><p>Your account details.</p></div>
+        <button class="refresh-btn" id="profile-refresh">Refresh</button>
+      </div>
+
+      <div class="form-card" id="profile-view">
+        <dl class="detail-list">
+          <dt>Name</dt><dd id="profile-name">—</dd>
+          <dt>Email</dt><dd id="profile-email">—</dd>
+          <dt>Phone</dt><dd id="profile-phone">—</dd>
+          <dt>Status</dt><dd id="profile-status">—</dd>
+          <dt>Registered</dt><dd id="profile-registered">—</dd>
+        </dl>
+      </div>
+
+      <h2>Update profile</h2>
+      <form class="form-card" id="profile-form">
+        <div class="field">
+          <label for="profile-form-name">Name</label>
+          <input id="profile-form-name" name="name" type="text" placeholder="Full name">
+        </div>
+        <div class="field">
+          <label for="profile-form-email">Email</label>
+          <input id="profile-form-email" name="email" type="email" placeholder="you@example.com">
+        </div>
+        <div class="field">
+          <label for="profile-form-phone">Phone</label>
+          <input id="profile-form-phone" name="phone" type="tel" placeholder="Phone number">
+        </div>
+        <button class="submit-btn" type="submit">Save changes</button>
+        <div class="form-note" id="profile-form-note"></div>
+      </form>
+    </section>
+
+    <!-- HOMES -->
+    <section id="sec-homes">
+      <div class="page-head">
+        <div><h1>Homes</h1><p>Every property linked to your account.</p></div>
+        <button class="refresh-btn" id="homes-refresh">Refresh</button>
+      </div>
+
+      <div id="homes-body"><div class="load">Loading homes…</div></div>
+
+      <h2>Add a home</h2>
+      <form class="form-card" id="add-home-form">
+        <div class="field">
+          <label for="home-address">Address</label>
+          <input id="home-address" name="address" type="text" required placeholder="Street address">
+        </div>
+        <div class="field">
+          <label for="home-city">City</label>
+          <input id="home-city" name="city" type="text" required placeholder="City">
+        </div>
+        <div class="field">
+          <label for="home-state">State</label>
+          <input id="home-state" name="state" type="text" placeholder="State">
+        </div>
+        <div class="field">
+          <label for="home-pincode">Pincode</label>
+          <input id="home-pincode" name="pincode" type="text" placeholder="Postal code">
+        </div>
+        <div class="field">
+          <label for="home-type">Home type</label>
+          <select id="home-type" name="home_type">
+            <option value="owned">Owned</option>
+            <option value="rented">Rented</option>
+          </select>
+        </div>
+        <button class="submit-btn" type="submit">Add home</button>
+        <div class="form-note" id="add-home-note"></div>
+      </form>
+    </section>
+
+    <!-- APPLIANCES -->
+    <section id="sec-appliances">
+      <div class="page-head">
+        <div><h1>Appliances</h1><p>Pick a home to see what's tracked there.</p></div>
+        <button class="refresh-btn" id="appliances-refresh">Refresh</button>
+      </div>
+
+      <div class="field">
+        <label for="appliance-home-select">Home</label>
+        <select id="appliance-home-select"></select>
+      </div>
+
+      <div id="appliances-body"><div class="load">Select a home to load its appliances…</div></div>
+
+      <h2>Add an appliance</h2>
+      <form class="form-card" id="add-appliance-form">
+        <div class="field">
+          <label for="appliance-name">Name</label>
+          <input id="appliance-name" name="name" type="text" required placeholder="e.g. Washing machine">
+        </div>
+        <div class="field">
+          <label for="appliance-category">Category</label>
+          <input id="appliance-category" name="category" type="text" required placeholder="e.g. Laundry">
+        </div>
+        <div class="field">
+          <label for="appliance-brand">Brand</label>
+          <input id="appliance-brand" name="brand" type="text" placeholder="Brand">
+        </div>
+        <div class="field">
+          <label for="appliance-model">Model</label>
+          <input id="appliance-model" name="model" type="text" placeholder="Model number">
+        </div>
+        <div class="field">
+          <label for="appliance-purchase-date">Purchase date</label>
+          <input id="appliance-purchase-date" name="purchase_date" type="date">
+        </div>
+        <div class="field">
+          <label for="appliance-warranty">Warranty expiry</label>
+          <input id="appliance-warranty" name="warranty_expiry" type="date">
+        </div>
+        <button class="submit-btn" type="submit">Add appliance</button>
+        <div class="form-note" id="add-appliance-note"></div>
+      </form>
+    </section>
+
+    <!-- SECURITY -->
+    <section id="sec-security">
+      <div class="page-head">
+        <div><h1>Security</h1><p>Change your password or deactivate your account.</p></div>
+      </div>
+
+      <h2>Change password</h2>
+      <form class="form-card" id="change-password-form">
+        <div class="field">
+          <label for="old-password">Current password</label>
+          <input id="old-password" name="old_password" type="password" required>
+        </div>
+        <div class="field">
+          <label for="new-password">New password</label>
+          <input id="new-password" name="new_password" type="password" required>
+        </div>
+        <button class="submit-btn" type="submit">Update password</button>
+        <div class="form-note" id="change-password-note"></div>
+      </form>
+
+      <h2>Deactivate account</h2>
+      <div class="form-card">
+        <p>This signs you out and marks your account inactive. You can't undo this from here.</p>
+        <button class="submit-btn danger" id="deactivate-btn" type="button">Deactivate account</button>
+        <div class="form-note" id="deactivate-note"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>
