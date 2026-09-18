@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template, send_from_directory
 from config import Config
 from database.connection import get_pool
 
@@ -28,6 +28,28 @@ def create_app():
     @app.route("/")
     def health_check():
         return jsonify({"status": "HomeService OS backend is running"})
+
+    # ---------------------------------------------------------------
+    # Page routes — serve the HTML templates
+    # ---------------------------------------------------------------
+
+    @app.route("/admin/dashboard")
+    def admin_dashboard_page():
+        return render_template("admin/dashboard.html")
+
+    @app.route("/customer")
+    def customer_page():
+        return render_template("customer/customer.html")
+
+    # ---------------------------------------------------------------
+    # Serve CSS from styles/css (Flask's default static folder only
+    # covers the top-level "static" directory, so this extra route
+    # lets templates reference /styles/css/<file>.css)
+    # ---------------------------------------------------------------
+
+    @app.route("/styles/css/<path:filename>")
+    def styles_css(filename):
+        return send_from_directory("styles/css", filename)
 
     return app
 
