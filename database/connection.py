@@ -1,8 +1,12 @@
+import os
 import mysql.connector
 from mysql.connector import pooling
 from config import Config
 
 _pool = None
+
+# ca.pem lives in the project root, one level up from this file's folder
+_CA_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "ca.pem")
 
 
 def get_pool():
@@ -17,6 +21,8 @@ def get_pool():
             user=Config.DB_USER,
             password=Config.DB_PASSWORD,
             database=Config.DB_NAME,
+            ssl_ca=_CA_PATH,
+            ssl_verify_cert=True,
         )
     return _pool
 
