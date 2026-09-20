@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rate & Review — HomeService OS</title>
+<link rel="stylesheet" href="/static/css/admin.css">
+<link rel="stylesheet" href="/static/css/member2.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">Home<span>Service</span> OS<small>Customer</small></div>
+    <nav>
+      <a class="nav-btn" href="/bookings"><span class="dot"></span>My Bookings</a>
+    </nav>
+  </aside>
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>Rate & Review</h1>
+        <p>Let others know how your service went.</p>
+      </div>
+    </div>
+    <div class="form-card">
+      <div class="field">
+        <label>Your rating</label>
+        <div class="star-input" id="star-input">
+          <span class="star" data-val="1">★</span><span class="star" data-val="2">★</span>
+          <span class="star" data-val="3">★</span><span class="star" data-val="4">★</span>
+          <span class="star" data-val="5">★</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Review (optional)</label>
+        <textarea id="review-text" placeholder="How was the service?"></textarea>
+      </div>
+      <button class="submit-btn" id="submit-review">Submit review</button>
+      <div class="form-note" id="review-note"></div>
+    </div>
+  </main>
+</div>
+<script src="/static/js/reviews/submit.js"></script>
+</body>
+</html>

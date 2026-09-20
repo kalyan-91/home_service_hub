@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nearby Technicians — HomeService OS</title>
+<link rel="stylesheet" href="/static/css/admin.css">
+<link rel="stylesheet" href="/static/css/member2.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">Home<span>Service</span> OS<small>Customer</small></div>
+    <nav>
+      <a class="nav-btn" href="/services"><span class="dot"></span>Services</a>
+      <button class="nav-btn active"><span class="dot"></span>Technicians</button>
+      <a class="nav-btn" href="/bookings"><span class="dot"></span>My Bookings</a>
+    </nav>
+  </aside>
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>Nearby Technicians</h1>
+        <p>Technicians available near your location for this service.</p>
+      </div>
+    </div>
+    <div class="filter-row">
+      <button class="chip active" id="view-list">List</button>
+      <button class="chip" id="view-map">Map</button>
+      <span style="flex:1;"></span>
+      <select class="chip" id="sort-by" style="cursor:pointer;">
+        <option value="distance">Sort: Distance</option>
+        <option value="rating">Sort: Rating</option>
+      </select>
+    </div>
+    <div id="nearby-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+    <div id="nearby-map" style="display:none;height:420px;border:1px solid var(--line);border-radius:var(--radius-card);"></div>
+  </main>
+</div>
+<script src="/static/js/matching/nearby.js"></script>
+</body>
+</html>

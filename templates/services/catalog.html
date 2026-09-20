@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Services — HomeService OS</title>
+<link rel="stylesheet" href="/static/css/admin.css">
+<link rel="stylesheet" href="/static/css/member2.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">Home<span>Service</span> OS<small>Customer</small></div>
+    <nav>
+      <button class="nav-btn active"><span class="dot"></span>Services</button>
+      <a class="nav-btn" href="/technicians"><span class="dot"></span>Technicians</a>
+      <a class="nav-btn" href="/bookings"><span class="dot"></span>My Bookings</a>
+    </nav>
+  </aside>
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>Services</h1>
+        <p>Browse and book a home service.</p>
+      </div>
+    </div>
+    <div class="filter-row" id="category-filters">
+      <button class="chip active" data-cat="">All</button>
+    </div>
+    <div id="service-grid" class="stat-grid"></div>
+  </main>
+</div>
+<script src="/static/js/services/catalog.js"></script>
+</body>
+</html>

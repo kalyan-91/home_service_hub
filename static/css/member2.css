@@ -1,0 +1,73 @@
+/* member2.css — extends admin.css tokens (--ink, --paper, --teal, --amber, etc.)
+   Load admin.css BEFORE this file on every page. */
+
+.service-card{
+  display:block;text-decoration:none;color:var(--ink);
+  transition:border-color .15s ease, transform .1s ease;
+}
+.service-card:hover{border-color:var(--teal);transform:translateY(-1px);}
+
+.tech-card{
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-card);
+  padding:18px;display:flex;gap:14px;align-items:center;
+}
+.tech-card .avatar{
+  width:52px;height:52px;border-radius:50%;background:var(--teal-soft);
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-family:'Space Grotesk',sans-serif;font-size:18px;flex-shrink:0;
+}
+.tech-card .info{flex:1;min-width:0;}
+.tech-card .name{font-weight:600;font-size:15px;}
+.tech-card .meta{font-size:12.5px;color:var(--muted);margin-top:2px;}
+.tech-card .stars{color:var(--amber);font-size:13px;margin-top:4px;}
+.tech-card .dist{font-size:12.5px;color:var(--teal);font-weight:600;white-space:nowrap;}
+
+/* ---------- Wizard ---------- */
+.stepper{display:flex;gap:6px;margin-bottom:26px;}
+.stepper .step{
+  flex:1;height:4px;border-radius:2px;background:var(--line);
+}
+.stepper .step.done,.stepper .step.active{background:var(--teal);}
+.step-label{font-size:12.5px;color:var(--muted);margin-bottom:18px;}
+.step-label b{color:var(--ink);}
+
+.wizard-panel{
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-card);
+  padding:24px;max-width:560px;
+}
+.wizard-actions{display:flex;justify-content:space-between;margin-top:20px;}
+.btn-secondary{
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  padding:10px 18px;border-radius:8px;font-size:14px;cursor:pointer;
+}
+.btn-secondary:hover{border-color:var(--teal);}
+.btn-primary{
+  background:var(--teal);color:#fff;border:none;padding:10px 20px;
+  border-radius:8px;font-size:14px;cursor:pointer;font-weight:600;
+}
+.btn-primary:hover{background:var(--teal-soft);}
+.btn-primary:disabled{opacity:.5;cursor:default;}
+
+.option-list{display:flex;flex-direction:column;gap:8px;}
+.option-row{
+  border:1px solid var(--line);border-radius:8px;padding:12px 14px;
+  cursor:pointer;display:flex;justify-content:space-between;align-items:center;
+}
+.option-row.selected{border-color:var(--teal);background:#F0F5F3;}
+
+/* ---------- Status tracker ---------- */
+.track-stages{display:flex;flex-wrap:wrap;gap:0;margin:18px 0 6px;}
+.track-stages .stage{
+  flex:1;min-width:90px;text-align:center;font-size:11.5px;color:var(--muted);
+  padding-top:14px;position:relative;
+}
+.track-stages .stage::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--line);
+}
+.track-stages .stage.done::before,.track-stages .stage.current::before{background:var(--teal);}
+.track-stages .stage.current{color:var(--teal);font-weight:600;}
+
+/* ---------- Star rating input ---------- */
+.star-input{font-size:30px;color:var(--line);cursor:pointer;user-select:none;}
+.star-input .star{transition:color .1s;}
+.star-input .star.filled{color:var(--amber);}

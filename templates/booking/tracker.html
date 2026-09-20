@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Bookings — HomeService OS</title>
+<link rel="stylesheet" href="/static/css/admin.css">
+<link rel="stylesheet" href="/static/css/member2.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">Home<span>Service</span> OS<small>Customer</small></div>
+    <nav>
+      <a class="nav-btn" href="/services"><span class="dot"></span>Services</a>
+      <a class="nav-btn" href="/technicians"><span class="dot"></span>Technicians</a>
+      <button class="nav-btn active"><span class="dot"></span>My Bookings</button>
+    </nav>
+  </aside>
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>My Bookings</h1>
+        <p>Track the status of your service requests.</p>
+      </div>
+      <button class="refresh-btn" onclick="loadBookings()">Refresh</button>
+    </div>
+    <div id="bookings-list" style="display:flex;flex-direction:column;gap:14px;"></div>
+  </main>
+</div>
+<script src="/static/js/booking/tracker.js"></script>
+</body>
+</html>

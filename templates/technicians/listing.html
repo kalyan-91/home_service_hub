@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Technicians — HomeService OS</title>
+<link rel="stylesheet" href="/static/css/admin.css">
+<link rel="stylesheet" href="/static/css/member2.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">Home<span>Service</span> OS<small>Customer</small></div>
+    <nav>
+      <a class="nav-btn" href="/services"><span class="dot"></span>Services</a>
+      <button class="nav-btn active"><span class="dot"></span>Technicians</button>
+      <a class="nav-btn" href="/bookings"><span class="dot"></span>My Bookings</a>
+    </nav>
+  </aside>
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>Technicians</h1>
+        <p>Verified technicians available on the platform.</p>
+      </div>
+    </div>
+    <div class="filter-row" id="sort-filters">
+      <button class="chip active" data-sort="rating">Top rated</button>
+      <button class="chip" data-sort="experience">Most experienced</button>
+    </div>
+    <div id="tech-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+  </main>
+</div>
+<script src="/static/js/technicians/listing.js"></script>
+</body>
+</html>

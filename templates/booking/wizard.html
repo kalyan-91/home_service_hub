@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Book a Service — HomeService OS</title>
+<link rel="stylesheet" href="/static/css/admin.css">
+<link rel="stylesheet" href="/static/css/member2.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">Home<span>Service</span> OS<small>Customer</small></div>
+    <nav>
+      <a class="nav-btn" href="/services"><span class="dot"></span>Services</a>
+      <a class="nav-btn" href="/technicians"><span class="dot"></span>Technicians</a>
+      <a class="nav-btn active"><span class="dot"></span>My Bookings</a>
+    </nav>
+  </aside>
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>Book a Service</h1>
+        <p>A few quick steps to confirm your booking.</p>
+      </div>
+    </div>
+
+    <div class="stepper">
+      <div class="step" data-step="1"></div>
+      <div class="step" data-step="2"></div>
+      <div class="step" data-step="3"></div>
+      <div class="step" data-step="4"></div>
+    </div>
+    <div class="step-label" id="step-label"></div>
+
+    <div class="wizard-panel">
+      <!-- Step 1: Technician -->
+      <div class="wizard-step" id="step-1">
+        <div id="tech-options" class="option-list"><div class="load">Loading technicians…</div></div>
+      </div>
+
+      <!-- Step 2: Date & time -->
+      <div class="wizard-step" id="step-2" style="display:none;">
+        <div class="field"><label>Date</label><input type="date" id="booking-date"></div>
+        <div class="field"><label>Time</label><input type="time" id="booking-time"></div>
+      </div>
+
+      <!-- Step 3: Location -->
+      <div class="wizard-step" id="step-3" style="display:none;">
+        <div class="field"><label>Service location</label>
+          <textarea id="booking-location" placeholder="Full address"></textarea></div>
+      </div>
+
+      <!-- Step 4: Review & confirm -->
+      <div class="wizard-step" id="step-4" style="display:none;">
+        <div id="review-summary"></div>
+        <div class="form-note" id="wizard-note"></div>
+      </div>
+
+      <div class="wizard-actions">
+        <button class="btn-secondary" id="btn-back">Back</button>
+        <button class="btn-primary" id="btn-next">Next</button>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="/static/js/booking/wizard.js"></script>
+</body>
+</html>
