@@ -10,10 +10,10 @@ def list_services():
     category = request.args.get("category")
     if category:
         services = run_query(
-            "SELECT * FROM services WHERE category = %s", (category,), fetch_all=True
+            "SELECT * FROM services WHERE category = %s", (category,), fetch=True
         )
     else:
-        services = run_query("SELECT * FROM services", fetch_all=True)
+        services = run_query("SELECT * FROM services", fetch=True)
     return jsonify(services)
 
 
@@ -29,5 +29,5 @@ def get_service(service_id):
 
 @services_bp.route("/categories", methods=["GET"])
 def list_categories():
-    rows = run_query("SELECT DISTINCT category FROM services", fetch_all=True)
+    rows = run_query("SELECT DISTINCT category FROM services", fetch=True)
     return jsonify([r["category"] for r in rows])
