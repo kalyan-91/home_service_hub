@@ -1,4 +1,7 @@
-from flask import Flask, jsonify, render_template, send_from_directory
+from datetime import timedelta
+
+from flask import Flask, jsonify, render_template, send_from_directory, session, redirect
+from flask.json.provider import DefaultJSONProvider
 from config import Config
 from database.connection import get_pool
 
@@ -10,11 +13,23 @@ from routes.services import services_bp
 from routes.admin import admin_bp
 from routes.booking import booking_bp
 from routes.move import move_bp
+from routes.payments import payments_bp
+
+
+class CustomJSONProvider(DefaultJSONProvider):
+    """MySQL TIME columns come back as timedelta, which Flask can't serialize by default."""
+
+    @staticmethod
+    def default(o):
+        if isinstance(o, timedelta):
+            return str(o)
+        return DefaultJSONProvider.default(o)
 
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+    app.json = CustomJSONProvider(app)
 
     get_pool()
 
@@ -26,6 +41,13 @@ def create_app():
     app.register_blueprint(admin_bp)
     app.register_blueprint(booking_bp)
     app.register_blueprint(move_bp)
+    app.register_blueprint(payments_bp)
+
+    # Makes {{ current_user_id }} available in every template, so pages can set
+    # window.CURRENT_USER_ID = {{ current_user_id | tojson }};
+    @app.context_processor
+    def inject_user():
+        return {"current_user_id": session.get("user_id")}
 
     @app.route("/")
     def health_check():
@@ -65,6 +87,28 @@ def create_app():
     @app.route("/services/<int:service_id>")
     def services_detail_page(service_id):
         return render_template("services/detail.html")
+
+    # CHECK: change "booking/my_bookings.html" to the real file name in templates/booking/
+    @app.route("/bookings")
+    def my_bookings_page():
+        if "user_id" not in session:
+            return redirect("/")  # CHECK: change to your login page URL
+        return render_template("booking/my_bookings.html")
+
+    @app.route("/payments")
+    def payments_page():
+        if "user_id" not in session:
+            return redirect("/")  # CHECK: change to your login page URL
+        return render_template("payments/summary.html")
+
+    # The booking wizard page also needs a route. Use whatever URL your service
+    # catalog links to (it must keep the ?service_id=... query string), e.g.:
+    #
+    # @app.route("/booking/new")
+    # def booking_wizard_page():
+    #     if "user_id" not in session:
+    #         return redirect("/")
+    #     return render_template("booking/wizard.html")
 
     # ---------------------------------------------------------------
     # Serve CSS from styles/css (Flask's default static folder only
