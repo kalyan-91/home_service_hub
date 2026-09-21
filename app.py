@@ -53,10 +53,9 @@ def create_app():
     def services_catalog_page():
         return render_template("services/catalog.html")
 
-    @app.route("/services/detail")
-    def services_detail_page():
+    @app.route("/services/<int:service_id>")
+    def services_detail_page(service_id):
         return render_template("services/detail.html")
-
 
     # ---------------------------------------------------------------
     # Serve CSS from styles/css (Flask's default static folder only
