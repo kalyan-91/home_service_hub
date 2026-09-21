@@ -92,13 +92,17 @@ def create_app():
     @app.route("/bookings")
     def my_bookings_page():
         if "user_id" not in session:
-            return redirect("/")  # CHECK: change to your login page URL
+            # No login page yet: show a clear message instead of redirecting to "/".
+            # When you have one, use: return redirect("/your-login-url")
+            return jsonify({"error": "Please log in first"}), 401
         return render_template("booking/my_bookings.html")
 
     @app.route("/payments")
     def payments_page():
         if "user_id" not in session:
-            return redirect("/")  # CHECK: change to your login page URL
+            # No login page yet: show a clear message instead of redirecting to "/".
+            # When you have one, use: return redirect("/your-login-url")
+            return jsonify({"error": "Please log in first"}), 401
         return render_template("payments/summary.html")
 
     # The booking wizard page also needs a route. Use whatever URL your service
