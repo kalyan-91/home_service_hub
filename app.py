@@ -45,6 +45,17 @@ def create_app():
     def review_page():
         return render_template("reviews/submit.html")
 
+    @app.route("/technicians")
+    def technicians_page():
+        return render_template("technicians/listing.html")
+
+    @app.route("/services")
+    def services_catalog_page():
+        return render_template("services/catalog.html")
+
+    @app.route("/services/detail")
+    def services_detail_page():
+        return render_template("services/detail.html")
 
 
     # ---------------------------------------------------------------
