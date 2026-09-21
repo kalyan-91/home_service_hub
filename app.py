@@ -45,6 +45,11 @@ def create_app():
     def review_page():
         return render_template("reviews/submit.html")
 
+    @app.route("/payments")
+    def review_page():
+        return render_template("payments/summary.html")
+
+
 
 
     # ---------------------------------------------------------------
