@@ -73,7 +73,7 @@ def update_profile():
 def list_skills():
     skills = run_query(
         "SELECT * FROM technician_skills WHERE technician_id = %s",
-        (session["user_id"],), fetch_all=True,
+        (session["user_id"],), fetch=True,
     )
     return jsonify(skills)
 
@@ -112,7 +112,7 @@ def delete_skill(skill_id):
 def list_availability():
     slots = run_query(
         "SELECT * FROM technician_availability WHERE technician_id = %s",
-        (session["user_id"],), fetch_all=True,
+        (session["user_id"],), fetch=True,
     )
     return jsonify(slots)
 
