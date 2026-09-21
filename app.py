@@ -88,14 +88,13 @@ def create_app():
     def services_detail_page(service_id):
         return render_template("services/detail.html")
 
-    # CHECK: change "booking/my_bookings.html" to the real file name in templates/booking/
     @app.route("/bookings")
     def my_bookings_page():
         if "user_id" not in session:
             # No login page yet: show a clear message instead of redirecting to "/".
             # When you have one, use: return redirect("/your-login-url")
             return jsonify({"error": "Please log in first"}), 401
-        return render_template("booking/my_bookings.html")
+        return render_template("booking/tracker.html")
 
     @app.route("/payments")
     def payments_page():
@@ -105,14 +104,13 @@ def create_app():
             return jsonify({"error": "Please log in first"}), 401
         return render_template("payments/summary.html")
 
-    # The booking wizard page also needs a route. Use whatever URL your service
-    # catalog links to (it must keep the ?service_id=... query string), e.g.:
-    #
-    # @app.route("/booking/new")
-    # def booking_wizard_page():
-    #     if "user_id" not in session:
-    #         return redirect("/")
-    #     return render_template("booking/wizard.html")
+    # CHECK: the URL must match the link your service detail page uses to open the
+    # wizard (it keeps the ?service_id=... query string, e.g. /bookings/new?service_id=3).
+    @app.route("/bookings/new")
+    def booking_wizard_page():
+        if "user_id" not in session:
+            return jsonify({"error": "Please log in first"}), 401
+        return render_template("booking/wizard.html")
 
     # ---------------------------------------------------------------
     # Serve CSS from styles/css (Flask's default static folder only
