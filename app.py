@@ -41,7 +41,7 @@ def create_app():
     def customer_page():
         return render_template("customer/customer.html")
 
-    @app.route("/reviews")
+    @app.route("/reviews/submit")
     def review_page():
         return render_template("reviews/submit.html")
 
