@@ -5,6 +5,7 @@ from database.connection import get_pool
 from routes.auth import auth_bp
 from routes.customer import customer_bp
 from routes.technician import technician_bp
+from routes.technicians_public import technicians_public_bp
 from routes.services import services_bp
 from routes.admin import admin_bp
 from routes.booking import booking_bp
@@ -20,6 +21,7 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(customer_bp)
     app.register_blueprint(technician_bp)
+    app.register_blueprint(technicians_public_bp)
     app.register_blueprint(services_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(booking_bp)
@@ -49,6 +51,13 @@ def create_app():
     def technicians_page():
         return render_template("technicians/listing.html")
 
+    # Uncomment once templates/technicians/detail.html exists
+    # (the technician cards link to /technicians/<id>):
+    #
+    # @app.route("/technicians/<int:technician_id>")
+    # def technician_detail_page(technician_id):
+    #     return render_template("technicians/detail.html")
+
     @app.route("/services")
     def services_catalog_page():
         return render_template("services/catalog.html")
@@ -56,10 +65,6 @@ def create_app():
     @app.route("/services/<int:service_id>")
     def services_detail_page(service_id):
         return render_template("services/detail.html")
-
-    @app.route("/technicians")
-    def technicians_page():
-        return render_template("technicians/listing.html")
 
     # ---------------------------------------------------------------
     # Serve CSS from styles/css (Flask's default static folder only
