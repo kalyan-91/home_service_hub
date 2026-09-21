@@ -45,6 +45,11 @@ def create_app():
     def review_page():
         return render_template("reviews/submit.html")
 
+    @app.route("/payments/summary")
+    def review_page():
+        return render_template("payments/summary.html")
+
+
     # ---------------------------------------------------------------
     # Serve CSS from styles/css (Flask's default static folder only
     # covers the top-level "static" directory, so this extra route
