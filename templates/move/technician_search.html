@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Find technicians for your move{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>Find technicians near your new home</h1>
+  <p>Pick one technician for each service you need. Results are ranked by distance, rating and experience.</p>
+</section>
+
+<div id="search-message" class="alert" role="status" hidden></div>
+
+<!-- Shown only when the new home has no coordinates yet -->
+<section class="card" id="coords-card" hidden>
+  <h2>Where is your new home?</h2>
+  <p class="muted">We need the location to find technicians nearby.</p>
+  <form id="coords-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="c-lat">Latitude</label>
+        <input type="number" id="c-lat" step="any" required>
+      </div>
+      <div class="form-group">
+        <label for="c-lon">Longitude</label>
+        <input type="number" id="c-lon" step="any" required>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Search this location</button>
+  </form>
+</section>
+
+<div id="service-blocks">
+  <p class="muted">Loading the services you need…</p>
+</div>
+
+<div class="flow-actions" id="search-actions" hidden>
+  <p class="muted" id="selection-count"></p>
+  <button type="button" class="btn btn-primary" id="btn-continue">Continue to cost estimate</button>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/move_matching.js') }}"></script>
+{% endblock %}
