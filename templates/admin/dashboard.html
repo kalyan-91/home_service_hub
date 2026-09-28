@@ -3,65 +3,163 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HomeService OS — All Pages</title>
+<title>HomeService OS — Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/styles/css/styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
 </head>
 <body>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand"><span class="logo" data-icon="home"></span><div>Home<span>Service</span> OS<small>Admin Control Panel</small></div></div>
+    <nav id="nav">
+      <button class="nav-btn active" data-section="dashboard"><span class="ico" data-icon="home"></span>Dashboard</button>
+      <button class="nav-btn" data-section="customers"><span class="ico" data-icon="users"></span>Customers</button>
+      <button class="nav-btn" data-section="technicians"><span class="ico" data-icon="wrench"></span>Technicians</button>
+      <button class="nav-btn" data-section="bookings"><span class="ico" data-icon="calendar"></span>Bookings</button>
+      <button class="nav-btn" data-section="complaints"><span class="ico" data-icon="alert"></span>Complaints</button>
+      <button class="nav-btn" data-section="reviews"><span class="ico" data-icon="star"></span>Reviews</button>
+      <button class="nav-btn" data-section="notifications"><span class="ico" data-icon="send"></span>Send Notification</button>
+    </nav>
+    <div class="rail-tag"><span class="ico" data-icon="home"></span><div>Better Services<br>Happier Homes</div></div>
+    <div class="rail-foot">Phase 1 UI · connects to /api/admin</div>
+  </aside>
 
-<header>
-  <h1>HomeService OS</h1>
-  <p>Quick links to every page of the application.</p>
-</header>
+  <div class="content">
+    <header class="topbar">
+      <label class="search"><span class="ico" data-icon="search"></span><input id="search" type="search" placeholder="Search anything..."></label>
+      <div class="top-right"><span class="ico" data-icon="bell"></span><div class="me"><span class="avatar">A</span><span>Admin</span></div></div>
+    </header>
+    <main>
 
-<nav aria-label="Main navigation">
-  <ul>
-    <li><a href="https://home-service-hub-silk.vercel.app/">Backend health check</a></li>
-  </ul>
-</nav>
+    <section id="sec-dashboard" class="active">
+      <div class="banner">
+        <span class="ico" data-icon="home"></span>
+        <div><h1>Welcome Back, Admin!</h1><p>Here's what's happening with your Home Service OS today.</p></div>
+        <div class="tag">Right Technician<br>Right Time<br>Near You</div>
+        <button class="refresh-btn" onclick="load('dashboard')"><span class="ico" data-icon="refresh" style="width:14px;height:14px"></span>Refresh</button>
+      </div>
 
-<main>
+      <div class="stat-grid">
+        <div class="stat-card"><span class="ico-circle blue"><span class="ico" data-icon="calendar"></span></span><div><div class="num" id="st-avg">0</div><div class="label">Average Booking Value</div></div></div>
+        <div class="stat-card"><span class="ico-circle green"><span class="ico" data-icon="calendar"></span></span><div><div class="num" id="st-cancelled">0</div><div class="label">Cancelled Bookings</div></div></div>
+        <div class="stat-card"><span class="ico-circle purple"><span class="ico" data-icon="check"></span></span><div><div class="num" id="st-completed">0</div><div class="label">Completed Bookings</div></div></div>
+        <div class="stat-card"><span class="ico-circle orange"><span class="ico" data-icon="users"></span></span><div><div class="num sm" id="st-popular">—</div><div class="label">Popular Services</div></div></div>
+        <div class="stat-card"><span class="ico-circle blue"><span class="ico" data-icon="chart"></span></span><div><div class="num" id="st-bookings">0</div><div class="label">Total Bookings</div></div></div>
 
-  <section id="admin">
-    <h2>Admin</h2>
-    <ul>
-      <li><a href="https://home-service-hub-silk.vercel.app/admin/dashboard">Admin dashboard</a></li>
-    </ul>
-  </section>
+        <div class="stat-card"><span class="ico-circle red"><span class="ico" data-icon="users"></span></span><div><div class="num" id="st-customers">0</div><div class="label">Total Customers</div></div></div>
+        <div class="stat-card"><span class="ico-circle green"><span class="ico" data-icon="money"></span></span><div><div class="num" id="st-revenue">0</div><div class="label">Total Revenue</div></div></div>
+        <div class="stat-card"><span class="ico-circle purple"><span class="ico" data-icon="wrench"></span></span><div><div class="num" id="st-technicians">0</div><div class="label">Total Technicians</div></div></div>
+        <div class="quick">
+          <h3>Quick Actions</h3>
+          <div class="qa-grid">
+            <button class="qa blue" data-goto="customers"><span class="ico" data-icon="userplus"></span>Add Customer</button>
+            <button class="qa green" data-goto="technicians"><span class="ico" data-icon="wrench"></span>Add Technician</button>
+            <button class="qa orange" data-goto="bookings"><span class="ico" data-icon="calendar"></span>Create Booking</button>
+            <button class="qa purple" data-goto="notifications"><span class="ico" data-icon="send"></span>Send Notification</button>
+          </div>
+        </div>
+      </div>
 
-  <section id="customer">
-    <h2>Customer</h2>
-    <ul>
-      <li><a href="https://home-service-hub-silk.vercel.app/customer">Customer home</a></li>
-      <li><a href="https://home-service-hub-silk.vercel.app/reviews/submit">Submit a review</a></li>
-    </ul>
-  </section>
+      <div class="dash-lower">
+        <div class="panel">
+          <div class="panel-head"><h3>Bookings Overview</h3>
+            <div class="legend"><span><i class="completed"></i>Completed</span><span><i class="cancelled"></i>Cancelled</span><span><i class="pending"></i>Pending</span></div></div>
+          <div class="chart" id="chart"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Recent Bookings</h3><button class="link-btn" data-goto="bookings">View All →</button></div>
+          <div id="recent-body"><div class="load">Loading…</div></div>
+        </div>
+      </div>
+    </section>
 
-  <section id="services">
-    <h2>Services &amp; Technicians</h2>
-    <ul>
-      <li><a href="https://home-service-hub-silk.vercel.app/services">Services catalog</a></li>
-      <li><a href="https://home-service-hub-silk.vercel.app/services/1">Service detail (id 1)</a></li>
-      <li><a href="https://home-service-hub-silk.vercel.app/technicians">Technicians listing</a></li>
-    </ul>
-  </section>
+    <!-- CUSTOMERS -->
+    <section id="sec-customers">
+      <div class="page-head">
+        <div><h1>Customers</h1><p>Everyone registered with a customer account.</p></div>
+        <button class="refresh-btn" onclick="load('customers')">Refresh</button>
+      </div>
+      <div id="customers-body"><div class="load">Loading customers…</div></div>
+    </section>
 
-  <section id="bookings">
-    <h2>Bookings &amp; Payments</h2>
-    <ul>
-      <li><a href="https://home-service-hub-silk.vercel.app/bookings">My bookings</a></li>
-      <li><a href="https://home-service-hub-silk.vercel.app/bookings/new?service_id=1">New booking wizard</a></li>
-      <li><a href="https://home-service-hub-silk.vercel.app/payments">Payments</a></li>
-    </ul>
-  </section>
+    <!-- TECHNICIANS -->
+    <section id="sec-technicians">
+      <div class="page-head">
+        <div><h1>Technicians</h1><p>Verify technician accounts before they can accept bookings.</p></div>
+        <button class="refresh-btn" onclick="load('technicians')">Refresh</button>
+      </div>
+      <div id="technicians-body"><div class="load">Loading technicians…</div></div>
+    </section>
 
-</main>
+    <!-- BOOKINGS -->
+    <section id="sec-bookings">
+      <div class="page-head">
+        <div><h1>Bookings</h1><p>All service bookings across the platform.</p></div>
+        <button class="refresh-btn" onclick="load('bookings')">Refresh</button>
+      </div>
+      <div class="filter-row" id="booking-filters">
+        <button class="chip active" data-status="">All</button>
+        <button class="chip" data-status="Pending">Pending</button>
+        <button class="chip" data-status="Confirmed">Confirmed</button>
+        <button class="chip" data-status="Completed">Completed</button>
+        <button class="chip" data-status="Cancelled">Cancelled</button>
+      </div>
+      <div id="bookings-body"><div class="load">Loading bookings…</div></div>
+    </section>
 
-<footer>
-  <p>HomeService OS · <a href="https://home-service-hub-silk.vercel.app">home-service-hub-silk.vercel.app</a></p>
-</footer>
+    <!-- COMPLAINTS -->
+    <section id="sec-complaints">
+      <div class="page-head">
+        <div><h1>Complaints</h1><p>Issues raised by customers or technicians.</p></div>
+        <button class="refresh-btn" onclick="load('complaints')">Refresh</button>
+      </div>
+      <div id="complaints-body"><div class="load">Loading complaints…</div></div>
+    </section>
 
+    <!-- REVIEWS -->
+    <section id="sec-reviews">
+      <div class="page-head">
+        <div><h1>Reviews</h1><p>Customer reviews left for completed jobs.</p></div>
+        <button class="refresh-btn" onclick="load('reviews')">Refresh</button>
+      </div>
+      <div id="reviews-body"><div class="load">Loading reviews…</div></div>
+    </section>
+
+    <!-- NOTIFICATIONS -->
+    <section id="sec-notifications">
+      <div class="page-head">
+        <div><h1>Send notification</h1><p>Push a message straight to a user's inbox.</p></div>
+      </div>
+      <div class="form-card">
+        <form id="notif-form">
+          <div class="field">
+            <label for="notif-user">User ID</label>
+            <input id="notif-user" type="number" min="1" required placeholder="e.g. 104">
+          </div>
+          <div class="field">
+            <label for="notif-type">Type</label>
+            <select id="notif-type">
+              <option value="system">System</option>
+              <option value="booking">Booking</option>
+              <option value="payment">Payment</option>
+              <option value="alert">Alert</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="notif-message">Message</label>
+            <textarea id="notif-message" required placeholder="What should this user see?"></textarea>
+          </div>
+          <button class="submit-btn" type="submit">Send notification</button>
+          <div id="notif-note" class="form-note"></div>
+        </form>
+      </div>
+    </section>
+
+    </main>
+  </div>
+</div>
+<script src="admin.js"></script>
 </body>
 </html>
