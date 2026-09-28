@@ -290,3 +290,163 @@ tbody tr:hover{background:#FAF4E3}
   .topbar{padding:10px 16px}
   .me span:last-child{display:none}
 }
+/* HomeService OS — Request a service (booking wizard)
+   Scoped to .page-header and #request-flow so it won't disturb the rest of the site. */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+.page-header,#request-flow{
+  --bg:#F5EEDC; --surface:#FFFDF5; --border:#E6DCC3; --border-strong:#D3C6A6;
+  --text:#172B3A; --text-2:#4A5A66; --muted:#6B7780; --gold:#E7B84B; --highlight:#E07A35;
+  --accent:#1769AA; --accent-hover:#12558A; --accent-soft:#DCEAF6;
+  --ok:#15803D; --ok-soft:#E1F0DE; --warn:#B4531A; --warn-soft:#FBE4D3; --bad:#B91C1C; --bad-soft:#FBE3DF;
+  font-family:Inter,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--text);line-height:1.55;
+}
+#request-flow *,#request-flow *::before,#request-flow *::after{box-sizing:border-box}
+#request-flow [hidden]{display:none!important}
+
+/* ---------- Page header ---------- */
+.page-header{max-width:780px;margin:0 auto 20px;padding-left:16px;border-left:4px solid var(--gold)}
+.page-header h1{margin:0 0 4px;font-size:26px;font-weight:700;letter-spacing:-.02em}
+.page-header p{margin:0;color:var(--muted);font-size:15px}
+
+/* ---------- Card ---------- */
+#request-flow{
+  max-width:780px;margin:0 auto 40px;padding:32px;
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  box-shadow:0 1px 2px rgba(23,43,58,.05),0 8px 24px rgba(23,43,58,.06);
+}
+#request-flow .muted{margin:6px 0 0;color:var(--muted);font-size:13px}
+
+/* ---------- Stepper ---------- */
+#request-flow .stepper{counter-reset:step;display:flex;margin:0 0 30px;padding:0;list-style:none}
+#request-flow .stepper-step{
+  counter-increment:step;position:relative;flex:1;padding-top:42px;
+  text-align:center;color:var(--muted);font-size:12.5px;font-weight:500;
+}
+#request-flow .stepper-step::before{
+  content:counter(step);position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:1;
+  display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;
+  background:var(--surface);border:2px solid var(--border-strong);color:var(--muted);font-size:13px;font-weight:600;
+  transition:all .2s;
+}
+#request-flow .stepper-step::after{
+  content:"";position:absolute;top:15px;left:calc(-50% + 20px);right:calc(50% + 20px);height:2px;background:var(--border);
+}
+#request-flow .stepper-step:first-child::after{display:none}
+#request-flow .stepper-step.active,#request-flow .stepper-step.is-active,#request-flow .stepper-step.current{color:var(--accent);font-weight:600}
+#request-flow .stepper-step.active::before,#request-flow .stepper-step.is-active::before,#request-flow .stepper-step.current::before{
+  background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 0 4px var(--accent-soft);
+}
+#request-flow .stepper-step.done,#request-flow .stepper-step.is-done,#request-flow .stepper-step.completed,#request-flow .stepper-step.is-complete{color:var(--text-2)}
+#request-flow .stepper-step.done::before,#request-flow .stepper-step.is-done::before,#request-flow .stepper-step.completed::before,#request-flow .stepper-step.is-complete::before{
+  content:"✓";background:var(--accent-soft);border-color:var(--accent);color:var(--accent);
+}
+#request-flow .stepper-step.active::after,#request-flow .stepper-step.is-active::after,#request-flow .stepper-step.current::after,
+#request-flow .stepper-step.done::after,#request-flow .stepper-step.is-done::after,#request-flow .stepper-step.completed::after,#request-flow .stepper-step.is-complete::after{background:var(--accent)}
+
+/* ---------- Alerts ---------- */
+#request-flow .alert{margin:0 0 20px;padding:12px 16px;border:1px solid #B5D0E8;border-left-width:4px;border-radius:8px;background:var(--accent-soft);color:#0F4C7D;font-size:14px}
+#request-flow .alert-error,#request-flow .alert-danger{background:var(--bad-soft);border-color:#F5C2C2;color:var(--bad)}
+#request-flow .alert-success{background:var(--ok-soft);border-color:#B7E0C4;color:var(--ok)}
+#request-flow .alert-warning{background:var(--warn-soft);border-color:#F6D9A8;color:var(--warn)}
+
+/* ---------- Steps ---------- */
+#request-flow .flow-step{animation:flowIn .25s ease}
+@keyframes flowIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){#request-flow .flow-step{animation:none}}
+#request-flow .flow-step h2{margin:0 0 18px;font-size:19px;font-weight:600;letter-spacing:-.01em}
+
+/* ---------- Selectable option cards (services / technicians) ---------- */
+#request-flow .option-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+#request-flow .option-list>.muted{grid-column:1/-1;margin:0;padding:24px;text-align:center}
+#request-flow .option-list>:not(.muted){
+  display:block;width:100%;padding:16px 18px;text-align:left;font:inherit;color:var(--text);
+  background:var(--surface);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;
+  transition:border-color .15s,box-shadow .15s,background .15s,transform .15s;
+}
+#request-flow .option-list>:not(.muted):hover{border-color:var(--accent);box-shadow:0 4px 14px rgba(23,105,170,.12);transform:translateY(-1px)}
+#request-flow .option-list>.selected,#request-flow .option-list>.is-selected,#request-flow .option-list>.active,#request-flow .option-list>[aria-pressed="true"],#request-flow .option-list>:has(input:checked){
+  border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 3px rgba(23,105,170,.15);
+}
+#request-flow .option-list strong,#request-flow .option-list .option-title,#request-flow .option-list h3{display:block;margin:0 0 2px;font-size:15px;font-weight:600}
+#request-flow .option-list small,#request-flow .option-list .option-meta,#request-flow .option-list p{display:block;margin:2px 0 0;color:var(--muted);font-size:13px}
+#request-flow .option-list .price,#request-flow .option-list .option-price{margin-top:8px;color:var(--accent);font-weight:700}
+#request-flow .option-list input[type="radio"]{margin-right:8px;accent-color:var(--accent)}
+
+/* ---------- Form fields ---------- */
+#request-flow .form-group{margin:0 0 18px}
+#request-flow .form-group label{display:block;margin-bottom:6px;color:var(--text-2);font-size:13px;font-weight:600}
+#request-flow input[type="text"],#request-flow input[type="number"],#request-flow input[type="date"],#request-flow input[type="time"],#request-flow select,#request-flow textarea{
+  width:100%;padding:10px 12px;font:inherit;font-size:14px;color:var(--text);
+  background:#fff;border:1px solid var(--border-strong);border-radius:8px;transition:border-color .15s,box-shadow .15s;
+}
+#request-flow textarea{min-height:92px;resize:vertical}
+#request-flow input:focus,#request-flow select:focus,#request-flow textarea:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+#request-flow input::placeholder,#request-flow textarea::placeholder{color:#94A3B8}
+#request-flow #step-3 .form-group{max-width:280px}
+
+/* ---------- Review summary ---------- */
+#request-flow #review-summary{padding:6px 20px;background:#F7F0DD;border:1px solid var(--border);border-radius:10px}
+#request-flow #review-summary dl{display:grid;grid-template-columns:150px 1fr;margin:0}
+#request-flow #review-summary dt,#request-flow #review-summary dd{margin:0;padding:12px 0;border-bottom:1px solid var(--border)}
+#request-flow #review-summary dt{color:var(--muted);font-size:13px;font-weight:500}
+#request-flow #review-summary dd{font-weight:600;word-break:break-word}
+#request-flow #review-summary dl>:nth-last-child(-n+2){border-bottom:0}
+#request-flow #review-summary .summary-row,#request-flow #review-summary li{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid var(--border);list-style:none}
+#request-flow #review-summary ul,#request-flow #review-summary ol{margin:0;padding:0}
+#request-flow #review-summary table{width:100%;border-collapse:collapse}
+#request-flow #review-summary th,#request-flow #review-summary td{padding:12px 0;border-bottom:1px solid var(--border);text-align:left}
+#request-flow #review-summary th{width:150px;color:var(--muted);font-size:13px;font-weight:500}
+#request-flow #review-summary p{margin:10px 0}
+
+/* ---------- Status tracker ---------- */
+#request-flow #done-text{margin:0 0 22px;color:var(--text-2)}
+#request-flow .status-track{margin:0 0 8px;padding:0;list-style:none}
+#request-flow .status-track li{position:relative;padding:0 0 22px 38px;color:var(--muted);font-size:14px;font-weight:500}
+#request-flow .status-track li:last-child{padding-bottom:4px}
+#request-flow .status-track li::before{
+  content:"";position:absolute;left:0;top:0;width:24px;height:24px;border-radius:50%;
+  background:var(--surface);border:2px solid var(--border-strong);
+}
+#request-flow .status-track li::after{content:"";position:absolute;left:11px;top:26px;bottom:2px;width:2px;background:var(--border)}
+#request-flow .status-track li:last-child::after{display:none}
+#request-flow .status-track li.done,#request-flow .status-track li.is-done,#request-flow .status-track li.completed{color:var(--text)}
+#request-flow .status-track li.done::before,#request-flow .status-track li.is-done::before,#request-flow .status-track li.completed::before{
+  content:"✓";display:flex;align-items:center;justify-content:center;background:var(--ok);border-color:var(--ok);color:#fff;font-size:12px;font-weight:700;
+}
+#request-flow .status-track li.done::after,#request-flow .status-track li.is-done::after,#request-flow .status-track li.completed::after{background:var(--ok)}
+#request-flow .status-track li.current,#request-flow .status-track li.active,#request-flow .status-track li.is-active{color:var(--accent);font-weight:600}
+#request-flow .status-track li.current::before,#request-flow .status-track li.active::before,#request-flow .status-track li.is-active::before{
+  border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 4px var(--accent-soft);
+}
+#request-flow .status-track li.cancelled{color:var(--bad);font-weight:600}
+#request-flow .status-track li.cancelled::before{content:"✕";display:flex;align-items:center;justify-content:center;background:var(--bad);border-color:var(--bad);color:#fff;font-size:11px}
+
+/* ---------- Buttons & actions ---------- */
+#request-flow .flow-actions{display:flex;gap:10px;margin-top:22px}
+#request-flow #flow-actions{justify-content:space-between;margin-top:28px;padding-top:20px;border-top:1px solid var(--border)}
+#request-flow .btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 22px;
+  font:600 14px/1.2 Inter,sans-serif;border:1px solid transparent;border-radius:8px;cursor:pointer;
+  transition:background .15s,border-color .15s,color .15s,box-shadow .15s;
+}
+#request-flow .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#request-flow .btn:disabled{opacity:.5;cursor:not-allowed}
+#request-flow .btn-primary{background:var(--accent);color:#fff;box-shadow:0 1px 2px rgba(23,105,170,.35)}
+#request-flow .btn-primary:hover:not(:disabled){background:var(--accent-hover)}
+#request-flow .btn-secondary{background:#fff;color:var(--text-2);border-color:var(--border-strong)}
+#request-flow .btn-secondary:hover:not(:disabled){border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+#request-flow .btn-danger{background:#fff;color:var(--bad);border-color:#F5C2C2}
+#request-flow .btn-danger:hover:not(:disabled){background:var(--bad-soft);border-color:var(--bad)}
+#request-flow #btn-back[hidden]{display:block!important;visibility:hidden}
+
+/* ---------- Responsive ---------- */
+@media(max-width:600px){
+  #request-flow{padding:20px 16px;border-radius:12px}
+  .page-header h1{font-size:22px}
+  #request-flow .stepper-step{font-size:0}
+  #request-flow .stepper-step::before{font-size:13px}
+  #request-flow .stepper-step.active,#request-flow .stepper-step.is-active,#request-flow .stepper-step.current{font-size:12px}
+  #request-flow #review-summary dl{grid-template-columns:110px 1fr}
+  #request-flow .flow-actions .btn{flex:1}
+}
