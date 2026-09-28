@@ -1,32 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Payments — HomeService OS</title>
-<link rel="stylesheet" href="/static/css/admin.css">
-<link rel="stylesheet" href="/static/css/member2.css">
-</head>
-<body>
-<div class="shell">
-  <aside class="rail">
-    <div class="brand">Home<span>Service</span> OS<small>Customer</small></div>
-    <nav>
-      <a class="nav-btn" href="/services"><span class="dot"></span>Services</a>
-      <a class="nav-btn" href="/bookings"><span class="dot"></span>My Bookings</a>
-      <button class="nav-btn active"><span class="dot"></span>Payments</button>
-    </nav>
-  </aside>
-  <main>
-    <div class="page-head">
-      <div>
-        <h1>Payments</h1>
-        <p>Your payment history for completed services.</p>
-      </div>
+{% extends "base.html" %}
+
+{% block title %}Payments{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>Payments</h1>
+  <p>Your payments for completed services.</p>
+</section>
+
+<div id="payments-message" class="alert" role="status" hidden></div>
+
+<div id="payments-root" data-customer-id="{{ current_user_id or '' }}">
+
+  <div class="summary-grid" id="payment-summary" hidden>
+    <div class="summary-card">
+      <span class="summary-label">Total paid</span>
+      <span class="summary-value" id="sum-paid">₹0</span>
     </div>
-    <div id="payments-body"></div>
-  </main>
+    <div class="summary-card">
+      <span class="summary-label">Waiting for payment</span>
+      <span class="summary-value" id="sum-pending">₹0</span>
+    </div>
+    <div class="summary-card">
+      <span class="summary-label">Refunded</span>
+      <span class="summary-value" id="sum-refunded">₹0</span>
+    </div>
+    <div class="summary-card">
+      <span class="summary-label">Payments</span>
+      <span class="summary-value" id="sum-count">0</span>
+    </div>
+  </div>
+
+  <div class="filter-bar" id="status-filters" role="group" aria-label="Filter by status" hidden>
+    <button type="button" class="chip is-active" data-status="">All</button>
+    <button type="button" class="chip" data-status="Pending">Pending</button>
+    <button type="button" class="chip" data-status="Successful">Successful</button>
+    <button type="button" class="chip" data-status="Failed">Failed</button>
+    <button type="button" class="chip" data-status="Refunded">Refunded</button>
+  </div>
+
+  <div id="payments-table"><p class="muted">Loading payments…</p></div>
 </div>
-<script src="/static/js/payments/summary.js"></script>
-</body>
-</html>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/payments.js') }}"></script>
+{% endblock %}
