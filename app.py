@@ -49,7 +49,13 @@ def create_app():
     def inject_user():
         return {"current_user_id": session.get("user_id")}
 
+    # Base link opens the navigation hub page (templates/base.html)
     @app.route("/")
+    def home():
+        return render_template("base.html")
+
+    # Backend health check moved here
+    @app.route("/health")
     def health_check():
         return jsonify({"status": "HomeService OS backend is running"})
 
