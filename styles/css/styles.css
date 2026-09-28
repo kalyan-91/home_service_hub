@@ -151,6 +151,26 @@ nav{
   margin-bottom: 6px;
   opacity: .85;
 }
+.rail{
+  background: linear-gradient(180deg, #1769AA, #0F4C81);
+  color: #FFFDF5;
+}
+
+.brand{
+  color: #FFFDF5;
+}
+
+.brand span{
+  color: #E7B84B;
+}
+
+.brand small{
+  color: #DCEAF5;
+}
+
+.logo{
+  background: #E07A35;
+}
 
 /* ---------- Footer ---------- */
 .rail-foot{
