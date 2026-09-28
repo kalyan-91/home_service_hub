@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Request a service{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>Request a service</h1>
+  <p>Choose a service, a technician and a time. We'll send the request to the technician.</p>
+</section>
+
+<div id="request-flow" class="card"
+     data-customer-id="{{ session.get('user_id', '') }}"
+     data-service-id="{{ request.args.get('service_id', '') }}">
+
+  <ol class="stepper" id="stepper">
+    <li class="stepper-step" data-step="1">Service</li>
+    <li class="stepper-step" data-step="2">Technician</li>
+    <li class="stepper-step" data-step="3">Date and time</li>
+    <li class="stepper-step" data-step="4">Location and cost</li>
+    <li class="stepper-step" data-step="5">Review</li>
+  </ol>
+
+  <div id="flow-message" class="alert" role="status" hidden></div>
+
+  <!-- Step 1: service -->
+  <div class="flow-step" id="step-1">
+    <h2>Choose a service</h2>
+    <div class="option-list" id="service-options">
+      <p class="muted">Loading services…</p>
+    </div>
+  </div>
+
+  <!-- Step 2: technician -->
+  <div class="flow-step" id="step-2" hidden>
+    <h2>Choose a technician</h2>
+    <div class="option-list" id="tech-options"></div>
+    <div class="form-group" id="tech-manual" hidden>
+      <label for="tech-id-input">Technician ID</label>
+      <input type="number" id="tech-id-input" min="1" placeholder="e.g. 4">
+      <p class="muted">The technician list isn't available yet, so enter the ID of the technician you want.</p>
+    </div>
+  </div>
+
+  <!-- Step 3: date and time -->
+  <div class="flow-step" id="step-3" hidden>
+    <h2>Pick date and time</h2>
+    <div class="form-group">
+      <label for="booking-date">Date</label>
+      <input type="date" id="booking-date">
+    </div>
+    <div class="form-group">
+      <label for="booking-time">Time</label>
+      <input type="time" id="booking-time">
+    </div>
+  </div>
+
+  <!-- Step 4: location and cost -->
+  <div class="flow-step" id="step-4" hidden>
+    <h2>Add location and cost</h2>
+    <div class="form-group">
+      <label for="booking-location">Service location</label>
+      <textarea id="booking-location" rows="3" placeholder="House no., street, city, pincode"></textarea>
+    </div>
+    <div class="form-group">
+      <label for="booking-cost">Estimated cost (₹)</label>
+      <input type="number" id="booking-cost" min="0" step="1">
+      <p class="muted" id="cost-hint"></p>
+    </div>
+  </div>
+
+  <!-- Step 5: review -->
+  <div class="flow-step" id="step-5" hidden>
+    <h2>Review and confirm</h2>
+    <div id="review-summary"></div>
+  </div>
+
+  <!-- Done: status tracker -->
+  <div class="flow-step" id="step-done" hidden>
+    <h2>Request sent</h2>
+    <p id="done-text"></p>
+    <ol class="status-track" id="status-track"></ol>
+    <div class="flow-actions">
+      <button type="button" class="btn btn-secondary" id="btn-refresh">Refresh status</button>
+      <button type="button" class="btn btn-danger" id="btn-cancel">Cancel booking</button>
+    </div>
+  </div>
+
+  <div class="flow-actions" id="flow-actions">
+    <button type="button" class="btn btn-secondary" id="btn-back">Back</button>
+    <button type="button" class="btn btn-primary" id="btn-next">Next</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/booking.js') }}"></script>
+{% endblock %}
