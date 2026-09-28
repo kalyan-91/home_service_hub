@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
 /* HomeService OS — Admin · professional theme */
 :root{
   --bg:#F5EEDC; --surface:#FFFDF5; --border:#E6DCC3; --border-strong:#D3C6A6;
@@ -312,7 +314,6 @@ tbody tr:hover{background:#FAF4E3}
 }
 /* HomeService OS — Request a service (booking wizard)
    Scoped to .page-header and #request-flow so it won't disturb the rest of the site. */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 .page-header,#request-flow{
   --bg:#F5EEDC; --surface:#FFFDF5; --border:#E6DCC3; --border-strong:#D3C6A6;
@@ -471,7 +472,6 @@ tbody tr:hover{background:#FAF4E3}
   #request-flow .flow-actions .btn{flex:1}
 }
 /* HomeService OS — Customer account · professional theme */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 :root{
   --bg:#F5EEDC; --surface:#FFFDF5; --border:#E6DCC3; --border-strong:#D3C6A6;
@@ -641,17 +641,20 @@ body > main > section:nth-child(2){border-top-color:var(--highlight)}
 body > main > section:nth-child(3){border-top-color:var(--gold)}
 body > main > section:nth-child(4){border-top-color:var(--ok)}
 body > main > section:hover{box-shadow:0 6px 18px rgba(23,43,58,.1);transform:translateY(-2px)}
-body > main > section h2{margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--border);font-size:17px;font-weight:600}
+body > main > section h2{margin:0 0 12px;padding:0 0 10px;border-bottom:1px solid var(--border);font-size:17px;font-weight:600}
+/* fix: hide the gold bar that "main h2::before" (customer theme) draws over the heading text */
+body > main > section h2::before{display:none}
 body > main > section ul{margin:0;padding:0;list-style:none}
 body > main > section li + li{margin-top:2px}
 body > main > section li a{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:9px 12px;border-radius:8px;color:var(--accent);font-weight:500;text-decoration:none;
+  padding:10px 12px;border-radius:8px;color:var(--accent);font-weight:500;text-decoration:none;
   transition:background .15s,color .15s;
 }
 body > main > section li a::after{content:"→";color:var(--muted);transition:transform .15s,color .15s}
 body > main > section li a:hover{background:var(--accent-soft);color:var(--accent-hover)}
 body > main > section li a:hover::after{color:var(--accent);transform:translateX(3px)}
+body > main > section li a:focus-visible{background:var(--accent-soft)}
 
 body > footer{padding:20px 16px 28px;text-align:center;color:var(--muted);font-size:13px;border-top:1px solid var(--border)}
 body > footer a{color:var(--accent);font-weight:600;text-decoration:none}
