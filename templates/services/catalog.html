@@ -1,34 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Services — HomeService OS</title>
-<link rel="stylesheet" href="/styles/css/styles.css">
-</head>
-<body>
-<div class="shell">
-  <aside class="rail">
-    <div class="brand">Home<span>Service</span> OS<small>Customer</small></div>
-    <nav>
-      <button class="nav-btn active"><span class="dot"></span>Services</button>
-      <a class="nav-btn" href="/technicians"><span class="dot"></span>Technicians</a>
-      <a class="nav-btn" href="/bookings"><span class="dot"></span>My Bookings</a>
-    </nav>
-  </aside>
-  <main>
-    <div class="page-head">
-      <div>
-        <h1>Services</h1>
-        <p>Browse and book a home service.</p>
-      </div>
-    </div>
-    <div class="filter-row" id="category-filters">
-      <button class="chip active" data-cat="">All</button>
-    </div>
-    <div id="service-grid" class="stat-grid"></div>
-  </main>
+{% extends "base.html" %}
+
+{% block title %}Services{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>Services</h1>
+  <p>Browse the services we offer and book one in a few steps.</p>
+</section>
+
+<div class="form-group">
+  <label for="service-search">Search services</label>
+  <input type="search" id="service-search" placeholder="Search by name or keyword">
 </div>
-<script src="/static/js/services/catalog.js"></script>
-</body>
-</html>
+
+<div class="filter-bar" id="category-filters" role="group" aria-label="Filter by category">
+  <button type="button" class="chip is-active" data-category="">All</button>
+</div>
+
+<div id="services-message" class="alert" role="status" hidden></div>
+
+<div class="card-grid" id="service-grid">
+  <p class="muted">Loading services…</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/services.js') }}"></script>
+{% endblock %}
