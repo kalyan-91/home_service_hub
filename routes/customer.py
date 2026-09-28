@@ -87,7 +87,7 @@ def deactivate_account():
 @login_required()
 def dashboard():
     user_id = session["user_id"]
-    homes = run_query("SELECT * FROM homes WHERE customer_id = %s", (user_id,), fetch_all=True)
+    homes = run_query("SELECT * FROM homes WHERE customer_id = %s", (user_id,), fetch=True)
     appliance_count = run_query(
         """SELECT COUNT(*) AS total FROM appliances a
            JOIN homes h ON h.home_id = a.home_id WHERE h.customer_id = %s""",
@@ -103,7 +103,7 @@ def dashboard():
 @customer_bp.route("/homes", methods=["GET"])
 @login_required()
 def list_homes():
-    homes = run_query("SELECT * FROM homes WHERE customer_id = %s", (session["user_id"],), fetch_all=True)
+    homes = run_query("SELECT * FROM homes WHERE customer_id = %s", (session["user_id"],), fetch=True)
     return jsonify(homes)
 
 
@@ -207,7 +207,7 @@ def _home_belongs_to_customer(home_id, customer_id):
 def list_appliances(home_id):
     if not _home_belongs_to_customer(home_id, session["user_id"]):
         return jsonify({"error": "Home not found"}), 404
-    appliances = run_query("SELECT * FROM appliances WHERE home_id = %s", (home_id,), fetch_all=True)
+    appliances = run_query("SELECT * FROM appliances WHERE home_id = %s", (home_id,), fetch=True)
     return jsonify(appliances)
 
 
