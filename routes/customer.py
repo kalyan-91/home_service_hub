@@ -159,6 +159,19 @@ def update_home(home_id):
 @customer_bp.route("/homes/<int:home_id>", methods=["DELETE"])
 @login_required()
 def delete_home(home_id):
+    if not _home_belongs_to_customer(home_id, session["user_id"]):
+        return jsonify({"error": "Home not found"}), 404
+
+    # A home that is part of a move request must be kept (history)
+    in_move = run_query(
+        "SELECT move_request_id FROM move_requests WHERE old_home_id = %s OR new_home_id = %s LIMIT 1",
+        (home_id, home_id), fetch_one=True,
+    )
+    if in_move:
+        return jsonify({"error": "This home is part of a move request and cannot be deleted"}), 409
+
+    # appliances.home_id has a foreign key to homes, so remove them first
+    run_query("DELETE FROM appliances WHERE home_id = %s", (home_id,), commit=True)
     run_query(
         "DELETE FROM homes WHERE home_id = %s AND customer_id = %s",
         (home_id, session["user_id"]), commit=True,
