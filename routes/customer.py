@@ -170,7 +170,14 @@ def delete_home(home_id):
     if in_move:
         return jsonify({"error": "This home is part of a move request and cannot be deleted"}), 409
 
-    # appliances.home_id has a foreign key to homes, so remove them first
+    # appliances.home_id has a foreign key to homes, so remove them first,
+    # but never if any of them has history or requests attached
+    home_appliances = run_query(
+        "SELECT appliance_id FROM appliances WHERE home_id = %s", (home_id,), fetch=True,
+    )
+    if _appliances_in_use([a["appliance_id"] for a in home_appliances]):
+        return jsonify({"error": "This home has appliances with service history and cannot be deleted"}), 409
+
     run_query("DELETE FROM appliances WHERE home_id = %s", (home_id,), commit=True)
     run_query(
         "DELETE FROM homes WHERE home_id = %s AND customer_id = %s",
@@ -200,6 +207,23 @@ def _home_belongs_to_customer(home_id, customer_id):
         "SELECT home_id FROM homes WHERE home_id = %s AND customer_id = %s",
         (home_id, customer_id), fetch_one=True,
     ) is not None
+
+
+def _appliances_in_use(appliance_ids):
+    """True if any of these appliances is referenced by a service request, service
+    history, maintenance reminder or move request. Those foreign keys would make
+    MySQL reject the delete, and deleting them would erase the appliance history."""
+    if not appliance_ids:
+        return False
+    placeholders = ", ".join(["%s"] * len(appliance_ids))
+    for table in ("service_requests", "service_history", "maintenance_reminders", "move_appliances"):
+        row = run_query(
+            f"SELECT 1 AS used FROM {table} WHERE appliance_id IN ({placeholders}) LIMIT 1",
+            tuple(appliance_ids), fetch_one=True,
+        )
+        if row:
+            return True
+    return False
 
 
 @customer_bp.route("/homes/<int:home_id>/appliances", methods=["GET"])
@@ -278,5 +302,7 @@ def delete_appliance(appliance_id):
     )
     if not owned:
         return jsonify({"error": "Appliance not found"}), 404
+    if _appliances_in_use([appliance_id]):
+        return jsonify({"error": "This appliance has service history or requests and cannot be deleted"}), 409
     run_query("DELETE FROM appliances WHERE appliance_id = %s", (appliance_id,), commit=True)
     return jsonify({"message": "Appliance deleted"})
