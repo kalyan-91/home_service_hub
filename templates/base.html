@@ -3,62 +3,121 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HomeService OS — All Pages</title>
+<title>HomeService OS — Home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles/css/styles.css">
 </head>
 <body>
 
-<header>
-  <h1>HomeService OS</h1>
-  <p>Quick links to every page of the application.</p>
+<div class="top" id="top">
+  <div class="wrap">
+    <a class="brand" href="/">
+      <span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8M5 9.5V21h5v-6h4v6h5V9.5"/></svg></span>
+      <span>Home<b>Service</b> OS</span>
+    </a>
+    <button class="menu-toggle" id="menu-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="main-nav">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="main-nav" aria-label="Main navigation">
+      <a href="/services">Services</a>
+      <a href="/technicians">Technicians</a>
+      <a href="/bookings">Bookings</a>
+      <a href="/customer">My account</a>
+      <a href="/admin/dashboard">Admin</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <h1>Better services.<br>Happier homes.</h1>
+      <p>Book trusted home technicians, track every job, and pay in one place.</p>
+      <div class="cta">
+        <a class="btn primary" href="/bookings/new?service_id=1">Book a service</a>
+        <a class="btn ghost" href="/services">Browse services</a>
+      </div>
+    </div>
+    <aside class="promise" aria-label="Our promise">
+      <h2>What you can expect</h2>
+      <ul>
+        <li><i></i><div>Right technician<small>Verified and matched to your job</small></div></li>
+        <li><i></i><div>Right time<small>Pick a slot that suits you</small></div></li>
+        <li><i></i><div>Near you<small>Local help, quick response</small></div></li>
+      </ul>
+    </aside>
+  </div>
 </header>
 
-<nav aria-label="Main navigation">
-  <ul>
-    <li><a href="https://home-service-hub-silk.vercel.app/">Backend health check</a></li>
-  </ul>
-</nav>
+<main class="links">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Where do you want to go?</h2>
+      <p>Jump straight to any part of HomeService OS.</p>
+    </div>
 
-<main>
+    <div class="grid">
+      <section class="card" id="admin">
+        <h3>Admin</h3>
+        <p>Manage customers, technicians and bookings.</p>
+        <ul>
+          <li><a href="/admin/dashboard">Admin dashboard</a></li>
+        </ul>
+      </section>
 
-  <section id="admin">
-    <h2>Admin</h2>
-    <ul>
-      <li><a href="https://home-service-hub-silk.vercel.app/admin/dashboard">Admin dashboard</a></li>
-    </ul>
-  </section>
+      <section class="card" id="customer">
+        <h3>Customer</h3>
+        <p>Your account, homes and feedback.</p>
+        <ul>
+          <li><a href="/customer">Customer home</a></li>
+          <li><a href="/reviews/submit">Submit a review</a></li>
+        </ul>
+      </section>
 
-  <section id="customer">
-    <h2>Customer</h2>
-    <ul>
-      <li><a href="https://home-service-hub-silk.vercel.app/customer">Customer home</a></li>
-      <li><a href="https://home-service-hub-silk.vercel.app/reviews/submit">Submit a review</a></li>
-    </ul>
-  </section>
+      <section class="card" id="services">
+        <h3>Services &amp; Technicians</h3>
+        <p>Find the right service and the right person.</p>
+        <ul>
+          <li><a href="/services">Services catalog</a></li>
+          <li><a href="/services/1">Service detail (id 1)</a></li>
+          <li><a href="/technicians">Technicians listing</a></li>
+        </ul>
+      </section>
 
-  <section id="services">
-    <h2>Services &amp; Technicians</h2>
-    <ul>
-      <li><a href="https://home-service-hub-silk.vercel.app/services">Services catalog</a></li>
-      <li><a href="https://home-service-hub-silk.vercel.app/services/1">Service detail (id 1)</a></li>
-      <li><a href="https://home-service-hub-silk.vercel.app/technicians">Technicians listing</a></li>
-    </ul>
-  </section>
-
-  <section id="bookings">
-    <h2>Bookings &amp; Payments</h2>
-    <ul>
-      <li><a href="https://home-service-hub-silk.vercel.app/bookings">My bookings</a></li>
-      <li><a href="https://home-service-hub-silk.vercel.app/bookings/new?service_id=1">New booking wizard</a></li>
-      <li><a href="https://home-service-hub-silk.vercel.app/payments">Payments</a></li>
-    </ul>
-  </section>
-
+      <section class="card" id="bookings">
+        <h3>Bookings &amp; Payments</h3>
+        <p>Schedule, track and pay for jobs.</p>
+        <ul>
+          <li><a href="/bookings">My bookings</a></li>
+          <li><a href="/bookings/new?service_id=1">New booking wizard</a></li>
+          <li><a href="/payments">Payments</a></li>
+        </ul>
+      </section>
+    </div>
+  </div>
 </main>
 
+<section class="status">
+  <div class="wrap">
+    <div class="status-box">
+      <div>
+        <strong><span class="status-dot" id="status-dot" data-state="checking"></span>System status</strong>
+        <span id="status-text">Checking the backend…</span>
+      </div>
+      <a href="/health">Backend health check</a>
+    </div>
+  </div>
+</section>
+
 <footer>
-  <p>HomeService OS · <a href="https://home-service-hub-silk.vercel.app">home-service-hub-silk.vercel.app</a></p>
+  <div class="wrap">
+    <span>HomeService OS · Better Services, Happier Homes</span>
+    <a href="/">home-service-hub-silk.vercel.app</a>
+  </div>
 </footer>
 
+<script src="/styles/js/home.js"></script>
 </body>
 </html>
