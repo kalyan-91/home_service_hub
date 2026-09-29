@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Rate your service{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>Rate your service</h1>
+  <p>Your feedback helps other customers and helps technicians improve.</p>
+</section>
+
+<div id="review-message" class="alert" role="status" hidden></div>
+
+<div id="review-root" class="card"
+     data-booking-id="{{ booking_id or '' }}"
+     data-customer-id="{{ current_user_id or '' }}">
+
+  <div id="booking-summary" class="muted">Loading your booking…</div>
+
+  <form id="review-form" hidden>
+    <div class="form-group">
+      <span id="rating-label">Your rating</span>
+      <div class="star-rating" id="star-rating" role="group" aria-labelledby="rating-label">
+        <button type="button" class="star" data-value="1" aria-label="1 star" aria-pressed="false">★</button>
+        <button type="button" class="star" data-value="2" aria-label="2 stars" aria-pressed="false">★</button>
+        <button type="button" class="star" data-value="3" aria-label="3 stars" aria-pressed="false">★</button>
+        <button type="button" class="star" data-value="4" aria-label="4 stars" aria-pressed="false">★</button>
+        <button type="button" class="star" data-value="5" aria-label="5 stars" aria-pressed="false">★</button>
+      </div>
+      <p class="muted" id="rating-text">Select a rating from 1 to 5 stars.</p>
+    </div>
+
+    <div class="form-group">
+      <label for="review-text">Your review (optional)</label>
+      <textarea id="review-text" rows="4" maxlength="1000"
+                placeholder="How was the service? Was the technician on time and professional?"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary" id="btn-submit-review">Submit review</button>
+  </form>
+
+  <div id="review-done" hidden>
+    <h2>Thank you for your feedback</h2>
+    <p class="muted">Your review was submitted.</p>
+    <a class="btn btn-primary" href="/services">Browse services</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/reviews.js') }}"></script>
+{% endblock %}
