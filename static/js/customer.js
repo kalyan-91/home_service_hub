@@ -1,7 +1,7 @@
 /* Customer dashboard – talks to the /api/customer/* endpoints in customer_bp */
 (function () {
   const API = "/api/customer";
-  const LOGIN_URL = "/login"; // change if your login page lives elsewhere
+  const LOGIN_URL = null; // set to your login page URL once one exists
 
   const state = { homes: [], selectedHomeId: null, appliances: [] };
   const $ = (id) => document.getElementById(id);
@@ -15,8 +15,8 @@
       body: options.body ? JSON.stringify(options.body) : undefined,
     });
     if (res.status === 401) {
-      window.location.href = LOGIN_URL;
-      throw new Error("Login required");
+      if (LOGIN_URL) window.location.href = LOGIN_URL;
+      throw new Error("Please log in as a customer first");
     }
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || "Something went wrong");
