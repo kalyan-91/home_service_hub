@@ -623,75 +623,103 @@ body > footer a:hover{text-decoration:underline}
 
 
 /* Admin dashboard*/
-/* Admin login – all classes prefixed "al-" */
-.al {
-  --al-navy: #14213d;
-  --al-navy-2: #22345c;
-  --al-teal: #0f8b8d;
-  --al-teal-dark: #0b6b6d;
-  --al-bg: #f3f5f9;
-  --al-line: #cfd6e4;
-  --al-text: #1b2333;
-  --al-muted: #667089;
+
+
+/* Admin login – matches the HomeService OS home page (navy hero, gold rule, cream, orange action).
+   Header and footer come from styles.css; everything here is prefixed "al-". */
+.al-body {
+  --al-navy: #14283f;
+  --al-blue: #0f4c85;
+  --al-orange: #e07b39;
+  --al-orange-dark: #c9672a;
+  --al-gold: #e8b130;
+  --al-cream: #f5efe0;
+  --al-ink: #17304f;
+  --al-muted: #6b7686;
+  --al-line: #d9d2c1;
   --al-bad: #b42318;
-  --al-bad-bg: #fee4e2;
+  --al-bad-bg: #fde8e6;
   margin: 0;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--al-cream);
   font-family: "Inter", "Segoe UI", system-ui, sans-serif;
-  color: var(--al-text);
-  background: var(--al-bg);
 }
-.al *, .al *::before, .al *::after { box-sizing: border-box; }
 
-.al-shell { min-height: 100vh; display: grid; grid-template-columns: minmax(300px, 5fr) 6fr; }
-@media (max-width: 820px) { .al-shell { grid-template-columns: 1fr; } }
-
-/* Left navy panel */
-.al-side {
-  background: var(--al-navy); color: #fff;
-  padding: 36px 44px; display: flex; flex-direction: column; justify-content: space-between; gap: 40px;
+/* Hero band: same navy gradient and gold rule as the home page */
+.al-hero {
+  flex: 1;
+  background: linear-gradient(135deg, #14283f 0%, #123a63 55%, #0f4c85 100%);
+  border-bottom: 4px solid var(--al-gold);
+  color: #fff;
+  padding: 56px 0 64px;
 }
-@media (max-width: 820px) { .al-side { padding: 22px 24px; gap: 18px; } .al-side-copy p, .al-side-foot { display: none; } }
-.al-brand { display: inline-flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; font-weight: 600; font-size: 1.1rem; }
-.al-brand b { color: #6fd3d5; font-weight: 700; }
-.al-logo { width: 34px; height: 34px; border-radius: 9px; background: var(--al-teal); display: grid; place-items: center; }
-.al-logo svg { width: 20px; height: 20px; }
-.al-side-copy h1 { margin: 0; font-size: 2rem; line-height: 1.2; font-weight: 700; max-width: 14ch; }
-@media (max-width: 820px) { .al-side-copy h1 { font-size: 1.3rem; max-width: none; } }
-.al-side-copy p { margin: 14px 0 0; color: #c5cee3; max-width: 38ch; line-height: 1.55; }
-.al-side-foot { margin: 0; color: #8d9bbd; font-size: .88rem; }
-
-/* Form panel */
-.al-panel { display: grid; place-items: center; padding: 32px 20px; }
-.al-form { width: min(400px, 100%); }
-.al-form h2 { margin: 0; font-size: 1.6rem; font-weight: 700; color: var(--al-navy); }
-.al-lead { margin: 6px 0 22px; color: var(--al-muted); }
-
-.al-form label { display: block; font-size: .88rem; font-weight: 600; margin: 14px 0 6px; }
-.al-form input {
-  width: 100%; padding: 11px 12px; font: inherit; color: var(--al-text);
-  background: #fff; border: 1px solid var(--al-line); border-radius: 8px;
+.al-hero-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 440px);
+  gap: 56px;
+  align-items: center;
 }
-.al-form input:focus { outline: 3px solid #cdeeee; border-color: var(--al-teal); }
-.al-form input[aria-invalid="true"] { border-color: var(--al-bad); }
+@media (max-width: 860px) {
+  .al-hero { padding: 32px 0 40px; }
+  .al-hero-inner { grid-template-columns: 1fr; gap: 32px; }
+}
+
+/* Left: headline and points */
+.al-intro h1 { margin: 0; font-size: clamp(2rem, 4.6vw, 3.4rem); line-height: 1.08; font-weight: 800; letter-spacing: -.02em; }
+.al-intro > p { margin: 18px 0 0; font-size: 1.15rem; line-height: 1.55; color: #dbe5f1; max-width: 34ch; }
+
+.al-points { list-style: none; margin: 30px 0 0; padding: 0; max-width: 420px; }
+.al-points li {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, .14);
+  font-weight: 600;
+}
+.al-points li:last-child { border-bottom: 0; }
+.al-points i { flex: none; width: 14px; height: 14px; margin-top: 5px; border-radius: 50%; background: var(--al-gold); box-shadow: 0 0 0 4px rgba(232, 177, 48, .25); }
+.al-points small { display: block; margin-top: 2px; font-weight: 400; color: #c6d3e4; font-size: .95rem; }
+@media (max-width: 860px) { .al-points { display: none; } }
+
+/* Right: the form card, styled like the "Where do you want to go?" cards */
+.al-card {
+  background: #fffdf8;
+  color: var(--al-ink);
+  border-radius: 14px;
+  border-top: 4px solid var(--al-blue);
+  padding: 32px 30px 26px;
+  box-shadow: 0 18px 40px rgba(6, 18, 36, .35);
+}
+.al-card h2 { margin: 0; font-size: 1.6rem; font-weight: 800; color: var(--al-navy); }
+.al-lead { margin: 6px 0 20px; color: var(--al-muted); }
+
+.al-card label { display: block; font-size: .9rem; font-weight: 600; margin: 16px 0 6px; color: var(--al-navy); }
+.al-card input {
+  width: 100%; box-sizing: border-box; padding: 12px 13px; font: inherit; color: var(--al-ink);
+  background: #fff; border: 1px solid var(--al-line); border-radius: 10px;
+}
+.al-card input:focus { outline: 3px solid rgba(15, 76, 133, .22); border-color: var(--al-blue); }
+.al-card input[aria-invalid="true"] { border-color: var(--al-bad); }
 
 .al-pw { position: relative; }
-.al-pw input { padding-right: 64px; }
+.al-pw input { padding-right: 66px; }
 .al-toggle {
   position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
   background: none; border: 0; cursor: pointer; font: inherit; font-size: .85rem; font-weight: 600;
-  color: var(--al-teal-dark); padding: 6px 8px; border-radius: 6px;
+  color: var(--al-blue); padding: 6px 8px; border-radius: 6px;
 }
-.al-toggle:focus-visible, .al-submit:focus-visible, .al-back a:focus-visible { outline: 3px solid #7dd3d5; outline-offset: 2px; }
 
-.al-alert { background: var(--al-bad-bg); color: var(--al-bad); border-radius: 8px; padding: 10px 12px; font-size: .92rem; margin-bottom: 4px; }
+.al-alert { background: var(--al-bad-bg); color: var(--al-bad); border-radius: 10px; padding: 10px 12px; font-size: .92rem; }
 
+/* Orange action button, like "Book a service" */
 .al-submit {
-  width: 100%; margin-top: 22px; padding: 12px; font: inherit; font-weight: 600; color: #fff;
-  background: var(--al-teal); border: 0; border-radius: 8px; cursor: pointer;
+  width: 100%; margin-top: 24px; padding: 13px; font: inherit; font-weight: 700; color: #fff;
+  background: var(--al-orange); border: 0; border-radius: 10px; cursor: pointer;
+  box-shadow: 0 6px 16px rgba(224, 123, 57, .35);
 }
-.al-submit:hover:not(:disabled) { background: var(--al-teal-dark); }
-.al-submit:disabled { opacity: .6; cursor: wait; }
+.al-submit:hover:not(:disabled) { background: var(--al-orange-dark); }
+.al-submit:disabled { opacity: .65; cursor: wait; }
+.al-toggle:focus-visible, .al-submit:focus-visible, .al-back a:focus-visible { outline: 3px solid var(--al-gold); outline-offset: 2px; }
 
-.al-back { margin: 18px 0 0; text-align: center; font-size: .9rem; }
+.al-back { margin: 18px 0 0; text-align: center; font-size: .92rem; }
 .al-back a { color: var(--al-muted); }
