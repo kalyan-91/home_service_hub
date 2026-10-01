@@ -132,6 +132,11 @@ def create_app():
             return redirect("/admin/dashboard")
         return render_template("auth/admin_login.html")
 
+    @app.route("/technician/dashboard")
+    def technician_dashboard_page():
+        if session.get("role") != "technician":
+           return redirect("/login")
+        return render_template("dashboards/technician_login.html")
     # ---------------------------------------------------------------
     # Serve CSS from styles/css (Flask's default static folder only
     # covers the top-level "static" directory, so this extra route
