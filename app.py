@@ -118,6 +118,13 @@ def create_app():
             return jsonify({"error": "Please log in first"}), 401
         return render_template("booking/wizard.html")
 
+
+    @app.route("/customer")
+    def customer_page():
+        if "user_id" not in session or session.get("role") != "customer":
+            return jsonify({"error": "Please log in as a customer first"}), 401
+        return render_template("customer/customer.html")
+
     # ---------------------------------------------------------------
     # Serve CSS from styles/css (Flask's default static folder only
     # covers the top-level "static" directory, so this extra route
