@@ -67,8 +67,15 @@ def create_app():
     def admin_dashboard_page():
         return render_template("admin/dashboard.html")
 
+    # Customer dashboard (templates/customer/customer.html).
+    # Uses the same login check as /bookings and /payments, plus the customer
+    # role, because every /api/customer/* call the page makes requires it.
     @app.route("/customer")
     def customer_page():
+        if "user_id" not in session or session.get("role") != "customer":
+            # No login page yet: show a clear message instead of redirecting to "/".
+            # When you have one, use: return redirect("/your-login-url")
+            return jsonify({"error": "Please log in as a customer first"}), 401
         return render_template("customer/customer.html")
 
     @app.route("/reviews/submit")
@@ -118,13 +125,6 @@ def create_app():
             return jsonify({"error": "Please log in first"}), 401
         return render_template("booking/wizard.html")
 
-
-    @app.route("/customer")
-    def customer_page():
-        if "user_id" not in session or session.get("role") != "customer":
-            return jsonify({"error": "Please log in as a customer first"}), 401
-        return render_template("customer/customer.html")
-
     # ---------------------------------------------------------------
     # Serve CSS from styles/css (Flask's default static folder only
     # covers the top-level "static" directory, so this extra route
@@ -134,6 +134,12 @@ def create_app():
     @app.route("/styles/css/<path:filename>")
     def styles_css(filename):
         return send_from_directory("styles/css", filename)
+
+    # Same idea for JavaScript: templates reference /styles/js/<file>.js
+    # (used by templates/base.html -> home.js and the customer dashboard)
+    @app.route("/styles/js/<path:filename>")
+    def styles_js(filename):
+        return send_from_directory("styles/js", filename)
 
     return app
 
