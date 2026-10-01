@@ -8,44 +8,68 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles/css/styles.css">
+<link rel="stylesheet" href="/styles/css/admin_login.css">
 </head>
-<body class="al">
+<body class="al-body">
 
-<main class="al-shell">
-  <aside class="al-side">
-    <a class="al-brand" href="/">
-      <span class="al-logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8M5 9.5V21h5v-6h4v6h5V9.5"/></svg></span>
+<div class="top" id="top">
+  <div class="wrap">
+    <a class="brand" href="/">
+      <span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8M5 9.5V21h5v-6h4v6h5V9.5"/></svg></span>
       <span>Home<b>Service</b> OS</span>
     </a>
-    <div class="al-side-copy">
-      <h1>Run the platform from one place.</h1>
+    <nav id="main-nav" aria-label="Main navigation">
+      <a href="/services">Services</a>
+      <a href="/technicians">Technicians</a>
+      <a href="/bookings">Bookings</a>
+      <a href="/customer">My account</a>
+      <a href="/admin/login" aria-current="page">Admin</a>
+    </nav>
+  </div>
+</div>
+
+<header class="al-hero">
+  <div class="wrap al-hero-inner">
+    <div class="al-intro">
+      <h1>Admin sign in.<br>Everything in one place.</h1>
       <p>Verify technicians, follow bookings, resolve complaints and keep an eye on reviews.</p>
+
+      <ul class="al-points" aria-label="What you can do">
+        <li><i></i><div>Technicians<small>Verify and manage your team</small></div></li>
+        <li><i></i><div>Bookings<small>Track every job from request to payment</small></div></li>
+        <li><i></i><div>Feedback<small>Resolve complaints and moderate reviews</small></div></li>
+      </ul>
     </div>
-    <p class="al-side-foot">Better Services, Happier Homes</p>
-  </aside>
 
-  <section class="al-panel">
-    <form class="al-form" id="admin-login-form" novalidate>
-      <h2>Admin sign in</h2>
-      <p class="al-lead">Use your administrator account to continue.</p>
+    <section class="al-card" aria-labelledby="al-title">
+      <form id="admin-login-form" novalidate>
+        <h2 id="al-title">Sign in</h2>
+        <p class="al-lead">Use your administrator account to continue.</p>
 
-      <div class="al-alert" id="al-error" role="alert" hidden></div>
+        <div class="al-alert" id="al-error" role="alert" hidden></div>
 
-      <label for="al-email">Email</label>
-      <input id="al-email" name="email" type="email" autocomplete="username" required placeholder="admin@example.com">
+        <label for="al-email">Email</label>
+        <input id="al-email" name="email" type="email" autocomplete="username" required placeholder="admin@example.com">
 
-      <label for="al-password">Password</label>
-      <div class="al-pw">
-        <input id="al-password" name="password" type="password" autocomplete="current-password" required>
-        <button type="button" id="al-toggle" class="al-toggle" aria-label="Show password" aria-pressed="false">Show</button>
-      </div>
+        <label for="al-password">Password</label>
+        <div class="al-pw">
+          <input id="al-password" name="password" type="password" autocomplete="current-password" required>
+          <button type="button" id="al-toggle" class="al-toggle" aria-label="Show password" aria-pressed="false">Show</button>
+        </div>
 
-      <button class="al-submit" id="al-submit" type="submit">Sign in</button>
+        <button class="al-submit" id="al-submit" type="submit">Sign in</button>
+        <p class="al-back"><a href="/">Back to home</a></p>
+      </form>
+    </section>
+  </div>
+</header>
 
-      <p class="al-back"><a href="/">Back to home</a></p>
-    </form>
-  </section>
-</main>
+<footer>
+  <div class="wrap">
+    <span>HomeService OS · Better Services, Happier Homes</span>
+    <a href="/">home-service-hub-silk.vercel.app</a>
+  </div>
+</footer>
 
 <script src="/styles/js/admin_login.js"></script>
 </body>
