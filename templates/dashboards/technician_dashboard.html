@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HomeService OS — Technician dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles/css/styles.css">
+<link rel="stylesheet" href="/styles/css/technician_dashboard.css">
+</head>
+<body class="td-body">
+
+<div class="top" id="top">
+  <div class="wrap">
+    <a class="brand" href="/">
+      <span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8M5 9.5V21h5v-6h4v6h5V9.5"/></svg></span>
+      <span>Home<b>Service</b> OS</span>
+    </a>
+    <nav id="main-nav" aria-label="Main navigation">
+      <a href="/services">Services</a>
+      <a href="/technicians">Technicians</a>
+      <a href="/technician/dashboard" aria-current="page">My dashboard</a>
+      <a href="#" id="td-signout">Sign out</a>
+    </nav>
+  </div>
+</div>
+
+<header class="td-hero">
+  <div class="wrap">
+    <div class="td-hero-top">
+      <div>
+        <h1 id="td-greeting">Welcome back</h1>
+        <p id="td-subtitle">Manage your profile, skills and weekly availability.</p>
+      </div>
+      <span class="td-badge td-badge-wait" id="td-verify">Checking status…</span>
+    </div>
+
+    <div class="td-stats" aria-label="Summary">
+      <div class="td-stat"><span class="td-stat-num td-stat-text" id="stat-area">–</span><span class="td-stat-label">Service area</span></div>
+      <div class="td-stat"><span class="td-stat-num" id="stat-skills">–</span><span class="td-stat-label">Skills listed</span></div>
+      <div class="td-stat"><span class="td-stat-num" id="stat-slots">–</span><span class="td-stat-label">Weekly time slots</span></div>
+      <div class="td-stat"><span class="td-stat-num" id="stat-exp">–</span><span class="td-stat-label">Years of experience</span></div>
+    </div>
+  </div>
+</header>
+
+<main class="td-main">
+  <div class="wrap">
+    <div class="td-notice" id="td-notice" hidden>
+      Customers can only see and book you after an admin verifies your account.
+    </div>
+
+    <div class="td-grid">
+      <!-- Profile -->
+      <section class="td-card td-card-blue" aria-labelledby="h-profile">
+        <header class="td-card-head">
+          <h2 id="h-profile">Profile</h2>
+          <button class="td-btn td-btn-line td-btn-sm" id="btn-edit-profile" type="button">Edit</button>
+        </header>
+        <dl class="td-profile">
+          <div><dt>Name</dt><dd id="p-name">–</dd></div>
+          <div><dt>Email</dt><dd id="p-email">–</dd></div>
+          <div><dt>Phone</dt><dd id="p-phone">–</dd></div>
+          <div><dt>Service area</dt><dd id="p-area">–</dd></div>
+          <div><dt>Member since</dt><dd id="p-since">–</dd></div>
+        </dl>
+      </section>
+
+      <!-- Skills -->
+      <section class="td-card td-card-orange" aria-labelledby="h-skills">
+        <header class="td-card-head">
+          <h2 id="h-skills">Skills</h2>
+          <button class="td-btn td-btn-primary td-btn-sm" id="btn-add-skill" type="button">Add skill</button>
+        </header>
+        <ul class="td-skills" id="skill-list"></ul>
+        <p class="td-empty" id="skills-empty" hidden>No skills yet. Add the work you do, such as plumbing or AC repair, so customers can find you.</p>
+      </section>
+
+      <!-- Availability -->
+      <section class="td-card td-card-gold td-wide" aria-labelledby="h-avail">
+        <header class="td-card-head">
+          <h2 id="h-avail">Weekly availability</h2>
+          <button class="td-btn td-btn-primary td-btn-sm" id="btn-add-slot" type="button">Add time slot</button>
+        </header>
+        <div class="td-week" id="week"></div>
+        <p class="td-empty" id="slots-empty" hidden>You have not set any availability. Add the days and hours you can take jobs.</p>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>HomeService OS · Better Services, Happier Homes</span>
+    <a href="/">home-service-hub-silk.vercel.app</a>
+  </div>
+</footer>
+
+<div class="td-toast" id="td-toast" role="status" aria-live="polite"></div>
+
+<!-- Edit profile -->
+<dialog class="td-dialog" id="dlg-profile">
+  <form method="dialog" id="form-profile">
+    <h3>Edit profile</h3>
+    <label>Name <input name="name" required></label>
+    <label>Phone <input name="phone" type="tel" inputmode="tel" required></label>
+    <label>Service area <input name="service_area" required></label>
+    <div class="td-dialog-actions">
+      <button class="td-btn td-btn-line" value="cancel" formnovalidate>Cancel</button>
+      <button class="td-btn td-btn-primary" value="save">Save changes</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Add skill -->
+<dialog class="td-dialog" id="dlg-skill">
+  <form method="dialog" id="form-skill">
+    <h3>Add a skill</h3>
+    <label>Skill
+      <input name="skill_category" list="skill-options" placeholder="e.g. Plumbing" required>
+      <datalist id="skill-options">
+        <option value="Plumbing"><option value="Electrical"><option value="AC repair">
+        <option value="Appliance repair"><option value="Carpentry"><option value="Painting">
+        <option value="Cleaning"><option value="Pest control">
+      </datalist>
+    </label>
+    <label>Years of experience <input name="years_experience" type="number" min="0" max="60" value="0"></label>
+    <div class="td-dialog-actions">
+      <button class="td-btn td-btn-line" value="cancel" formnovalidate>Cancel</button>
+      <button class="td-btn td-btn-primary" value="save">Add skill</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Add availability -->
+<dialog class="td-dialog" id="dlg-slot">
+  <form method="dialog" id="form-slot">
+    <h3>Add a time slot</h3>
+    <label>Day
+      <select name="day_of_week" required>
+        <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+        <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+      </select>
+    </label>
+    <div class="td-row">
+      <label>From <input name="start_time" type="time" value="09:00" required></label>
+      <label>To <input name="end_time" type="time" value="17:00" required></label>
+    </div>
+    <label class="td-check"><input name="available" type="checkbox" checked> I am available in this slot</label>
+    <div class="td-dialog-actions">
+      <button class="td-btn td-btn-line" value="cancel" formnovalidate>Cancel</button>
+      <button class="td-btn td-btn-primary" value="save">Add slot</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="/styles/js/technician_dashboard.js"></script>
+</body>
+</html>
