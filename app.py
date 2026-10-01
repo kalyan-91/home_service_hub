@@ -130,7 +130,7 @@ def create_app():
     # Already signed in as admin: go straight to the dashboard
         if session.get("role") == "admin":
             return redirect("/admin/dashboard")
-        return render_template("admin/login.html")
+        return render_template("auth/admin_login.html")
 
     # ---------------------------------------------------------------
     # Serve CSS from styles/css (Flask's default static folder only
