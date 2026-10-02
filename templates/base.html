@@ -7,7 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/styles/css/styles.css">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="home.css">
+<script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
 
@@ -25,9 +27,7 @@
       <a href="/technicians">Technicians</a>
       <a href="/bookings">Bookings</a>
       <a href="/customer">My account</a>
-      <a href="/admin/dashboard">Admin</a>
-      <a href="/admin/login">Admin</a>
-      <a href="/technician/dashboard">Technician dashboard</a>
+      <a href="/bookings/new?service_id=1">Book a service</a>
     </nav>
   </div>
 </div>
@@ -53,90 +53,151 @@
   </div>
 </header>
 
-
-<main class="links">
+<!-- Trust strip -->
+<section class="trust">
   <div class="wrap">
-    <div class="section-head">
-      <h2>Where do you want to go?</h2>
-      <p>Jump straight to any part of HomeService OS.</p>
-    </div>
-
-    <div class="grid">
-
-
-      <section class="card" id="admin">
-        <h3>Admin</h3>
-        <p>Sign in to manage customers, technicians and bookings.</p>
-        <ul>
-          <li><a href="/admin/login">Admin sign in</a></li>
-          <li><a href="/admin/dashboard">Admin dashboard</a></li>
-        </ul>
-      </section>
-      
-      <section class="card" id="admin">
-        <h3>Admin</h3>
-        <p>Manage customers, technicians and bookings.</p>
-        <ul>
-          <li><a href="/admin/dashboard">Admin dashboard</a></li>
-        </ul>
-      </section>
-      
-
-      <section class="card" id="customer">
-        <h3>Customer</h3>
-        <p>Your account, homes, appliances and feedback.</p>
-        <ul>
-          <li><a href="/customer">Customer dashboard</a></li>
-          <li><a href="/reviews/submit">Submit a review</a></li>
-        </ul>
-      </section>
-
-    
-
-      <section class="card" id="services">
-  <h3>Services &amp; Technicians</h3>
-  <p>Browse home services, compare verified technicians, and book in minutes.</p>
-  <ul>
-    <li><a href="/services">Services catalog</a></li>
-    <li><a href="/technicians">Find a technician</a></li>
-    <li><a href="/bookings/new?service_id=1">Book a service</a></li>
-  </ul>
+    <div class="trust-item"><span class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8.2-8 9-4.8-.8-8-4.5-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg></span> Verified technicians</div>
+    <div class="trust-item"><span class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span> Choose your time slot</div>
+    <div class="trust-item"><span class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.1 7-11a7 7 0 10-14 0c0 4.9 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span> Technicians near you</div>
+    <div class="trust-item"><span class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/></svg></span> Simple payments</div>
+  </div>
 </section>
 
-      
-
-      <section class="card" id="bookings">
-        <h3>Bookings &amp; Payments</h3>
-        <p>Schedule, track and pay for jobs.</p>
-        <ul>
-          <li><a href="/bookings">My bookings</a></li>
-          <li><a href="/bookings/new?service_id=1">New booking wizard</a></li>
-          <li><a href="/payments">Payments</a></li>
-        </ul>
-      </section>
+<!-- Popular services -->
+<main class="links home-sec" id="popular">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">What we do</span>
+      <h2>Our popular services</h2>
+      <p>From a leaking tap to a noisy AC, we send the right professional to fix it.</p>
+    </div>
+    <div class="tiles">
+      <a class="tile reveal" href="/services">
+        <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg></span>
+        <h3>Electrical</h3>
+        <p>Fans, lights, switches, wiring and repairs.</p>
+        <span class="more">View services →</span>
+      </a>
+      <a class="tile reveal" href="/services">
+        <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6 6.3 6 10.5A6 6 0 016 13.5C6 9.3 12 3 12 3z"/></svg></span>
+        <h3>Plumbing</h3>
+        <p>Leaks, taps, pipes, bathroom and kitchen fittings.</p>
+        <span class="more">View services →</span>
+      </a>
+      <a class="tile reveal" href="/services">
+        <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M4.2 7l15.6 10M4.2 17L19.8 7"/><path d="M9.5 3.5L12 6l2.5-2.5M9.5 20.5L12 18l2.5 2.5"/></svg></span>
+        <h3>AC Service</h3>
+        <p>Cleaning, gas check, repair and installation.</p>
+        <span class="more">View services →</span>
+      </a>
+      <a class="tile reveal" href="/services">
+        <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></span>
+        <h3>Appliances</h3>
+        <p>Repair for the appliances you use every day.</p>
+        <span class="more">View services →</span>
+      </a>
     </div>
   </div>
 </main>
 
-<section class="status">
+<!-- How it works -->
+<section class="home-sec band" id="how">
   <div class="wrap">
-    <div class="status-box">
-      <div>
-        <strong><span class="status-dot" id="status-dot" data-state="checking"></span>System status</strong>
-        <span id="status-text">Checking the backend…</span>
+    <div class="section-head">
+      <span class="eyebrow">Simple process</span>
+      <h2>How it works</h2>
+      <p>Get your home problem solved in four easy steps.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <span class="num">1</span>
+        <h3>Choose a service</h3>
+        <p>Browse the catalog and pick what you need.</p>
       </div>
-      <a href="/health">Backend health check</a>
+      <div class="step reveal">
+        <span class="num">2</span>
+        <h3>Pick a time</h3>
+        <p>Select a slot that suits you.</p>
+      </div>
+      <div class="step reveal">
+        <span class="num">3</span>
+        <h3>Technician arrives</h3>
+        <p>A verified technician matched to your job comes to your home.</p>
+      </div>
+      <div class="step reveal">
+        <span class="num">4</span>
+        <h3>Track and pay</h3>
+        <p>Follow the job's progress and pay once it's done.</p>
+      </div>
     </div>
   </div>
 </section>
 
+<!-- Why choose us -->
+<section class="home-sec" id="why">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Why us</span>
+      <h2>Why choose HomeService OS</h2>
+      <p>Everything about your home services, managed in one place.</p>
+    </div>
+    <div class="why">
+      <div class="why-item reveal">
+        <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8.2-8 9-4.8-.8-8-4.5-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg></span>
+        <div><h3>Verified technicians</h3><p>Every technician is matched to the skill your job needs.</p></div>
+      </div>
+      <div class="why-item reveal">
+        <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg></span>
+        <div><h3>Local and quick</h3><p>Help from technicians near you, with a fast response.</p></div>
+      </div>
+      <div class="why-item reveal">
+        <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></span>
+        <div><h3>Track every job</h3><p>See the status of each booking from request to completion.</p></div>
+      </div>
+      <div class="why-item reveal">
+        <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12M6 8h12M6 13l8.5 8M6 13h3M9 13c6.667 0 6.667-10 0-10"/></svg></span>
+        <div><h3>Simple payments</h3><p>View and pay for your services in one place.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Call to action -->
+<section class="home-cta">
+  <div class="wrap">
+    <h2>Need something fixed at home?</h2>
+    <p>Book a trusted technician in a few clicks.</p>
+    <div class="cta">
+      <a class="btn primary" href="/bookings/new?service_id=1">Book a service</a>
+      <a class="btn ghost" href="/services">Browse services</a>
+    </div>
+  </div>
+</section>
+
+<div hidden>
+  <span id="status-dot" data-state="checking"></span>
+  <span id="status-text"></span>
+</div>
+
 <footer>
   <div class="wrap">
-    <span>HomeService OS · Better Services, Happier Homes</span>
-    <a href="/">home-service-hub-silk.vercel.app</a>
+    <span>© HomeService OS · Better Services, Happier Homes</span>
   </div>
 </footer>
 
 <script src="/styles/js/home.js"></script>
+<script>
+  // Fade-in on scroll (content stays visible if this fails)
+  (function () {
+    var els = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) { els.forEach(function (e) { e.classList.add('in'); }); return; }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.15 });
+    els.forEach(function (e, i) { e.style.transitionDelay = (i % 4) * 80 + 'ms'; io.observe(e); });
+  })();
+</script>
 </body>
 </html>
