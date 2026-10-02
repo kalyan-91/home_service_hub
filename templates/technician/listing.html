@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Technicians{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>Technicians</h1>
+  <p>Verified technicians available on the platform.</p>
+</section>
+
+<div class="filter-bar" id="sort-filters" role="group" aria-label="Sort technicians">
+  <button type="button" class="chip is-active" data-sort="rating">Top rated</button>
+  <button type="button" class="chip" data-sort="experience">Most experienced</button>
+</div>
+
+<div id="tech-message" class="alert" role="status" hidden></div>
+
+<div id="tech-list" class="item-list">
+  <p class="muted">Loading technicians…</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/technician_listing.js') }}"></script>
+{% endblock %}
