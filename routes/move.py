@@ -4,15 +4,31 @@ from services.technician_matching import find_nearby_technicians
 
 move_bp = Blueprint("move", __name__, url_prefix="/api/move")
 
-# Simple starting price map per install/removal type — adjust to match
-# Member 1's actual `services` table pricing once it exists.
+# Starting price map per install/removal type. Keys are built from
+# appliances.category (schema ENUM values, e.g. "Washing Machine", "RO Purifier")
+# normalized to lowercase with spaces -> underscores. Adjust prices to match
+# Asif's actual `services` table pricing once that's finalized.
 DEFAULT_SERVICE_PRICES = {
     "fan_installation": 200,
     "light_installation": 100,
     "ac_installation": 1500,
+    "refrigerator_installation": 600,
     "washing_machine_installation": 500,
-    "ro_installation": 400,
+    "tv_installation": 300,
+    "geyser_installation": 450,
+    "ro_purifier_installation": 400,
+    "microwave_installation": 250,
+    "inverter_installation": 700,
+    "other_installation": 300,
 }
+
+
+def _category_to_service_key(category):
+    """Normalize an appliances.category ENUM value (e.g. 'Washing Machine',
+    'RO Purifier') into a DEFAULT_SERVICE_PRICES key (e.g.
+    'washing_machine_installation', 'ro_purifier_installation')."""
+    normalized = category.strip().lower().replace(" ", "_")
+    return f"{normalized}_installation"
 
 
 @move_bp.route("/required-services", methods=["POST"])
@@ -24,8 +40,8 @@ def required_services():
 
     required = []
     for appliance in appliances:
-        category = appliance.get("category", "").lower()
-        service_key = f"{category}_installation"
+        category = appliance.get("category", "")
+        service_key = _category_to_service_key(category)
         required.append({
             "appliance_id": appliance.get("appliance_id"),
             "category": category,
@@ -57,9 +73,9 @@ def cost_estimate():
     total = 0
     breakdown = []
     for appliance in appliances:
-        category = appliance.get("category", "").lower()
+        category = appliance.get("category", "")
         qty = appliance.get("quantity", 1)
-        service_key = f"{category}_installation"
+        service_key = _category_to_service_key(category)
         price = DEFAULT_SERVICE_PRICES.get(service_key, 300)
         line_total = price * qty
         total += line_total
@@ -76,17 +92,15 @@ def create_move_request():
     if missing:
         return jsonify({"error": f"Missing fields: {', '.join(missing)}"}), 400
 
-    # move_requests / move_appliances are owned jointly with Member 1;
-    # this assumes those tables already exist.
     move_id = run_query(
-        """INSERT INTO move_requests (customer_id, old_home_id, new_home_id, status)
+        """INSERT INTO move_requests (customer_id, old_home_id, new_home_id, move_status)
            VALUES (%s, %s, %s, 'Pending')""",
         (data["customer_id"], data["old_home_id"], data["new_home_id"]), commit=True
     )
 
     for appliance in data.get("appliances", []):
         run_query(
-            """INSERT INTO move_appliances (move_request_id, appliance_id, required_service)
+            """INSERT INTO move_appliances (move_request_id, appliance_id, required_service_type)
                VALUES (%s, %s, %s)""",
             (move_id, appliance.get("appliance_id"), appliance.get("required_service")), commit=True
         )
