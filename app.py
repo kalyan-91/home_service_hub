@@ -1,6 +1,7 @@
 from datetime import timedelta
+from functools import wraps
 
-from flask import Flask, jsonify, render_template, send_from_directory, session, redirect
+from flask import Flask, jsonify, render_template, send_from_directory, session, redirect, request
 from flask.json.provider import DefaultJSONProvider
 from config import Config
 from database.connection import get_pool
@@ -28,12 +29,38 @@ class CustomJSONProvider(DefaultJSONProvider):
         return DefaultJSONProvider.default(o)
 
 
+def admin_required(f):
+    """Only a logged-in user whose role is 'admin' may open the page."""
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if session.get("role") != "admin":
+            if request.path.startswith("/api/"):
+                return jsonify({"error": "Admin access required"}), 403
+            return redirect("/admin/login")
+        return f(*args, **kwargs)
+    return wrapper
+
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+    # Needed for sessions. Uses SECRET_KEY from config.py if you have one.
+    app.secret_key = app.config.get("SECRET_KEY") or "change-this-to-a-long-random-string"
     app.json = CustomJSONProvider(app)
 
     get_pool()
+
+    # ---------------------------------------------------------------
+    # Lock every admin API route to the admin role.
+    # The login endpoint itself is skipped so you can still sign in.
+    # ---------------------------------------------------------------
+    @admin_bp.before_request
+    def only_admin_for_admin_apis():
+        endpoint = (request.endpoint or "").lower()
+        if "login" in endpoint or "logout" in endpoint:
+            return None
+        if session.get("role") != "admin":
+            return jsonify({"error": "Admin access required"}), 403
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(customer_bp)
@@ -67,9 +94,25 @@ def create_app():
     # Page routes — serve the HTML templates
     # ---------------------------------------------------------------
 
+    # Admin dashboard: only opens after a correct admin login
     @app.route("/admin/dashboard")
+    @admin_required
     def admin_dashboard_page():
         return render_template("admin/dashboard.html")
+
+    # Admin login page
+    @app.route("/admin/login")
+    def admin_login_page():
+        # Already signed in as admin: go straight to the dashboard
+        if session.get("role") == "admin":
+            return redirect("/admin/dashboard")
+        return render_template("auth/admin_login.html")
+
+    # Admin logout
+    @app.route("/admin/logout")
+    def admin_logout():
+        session.clear()
+        return redirect("/admin/login")
 
     # Customer dashboard (templates/customer/customer.html).
     # Uses the same login check as /bookings and /payments, plus the customer
@@ -129,16 +172,10 @@ def create_app():
             return jsonify({"error": "Please log in first"}), 401
         return render_template("booking/wizard.html")
 
-    @app.route("/admin/login")
-    def admin_login_page():
-    # Already signed in as admin: go straight to the dashboard
-        if session.get("role") == "admin":
-            return redirect("/admin/dashboard")
-        return render_template("auth/admin_login.html")
-
     @app.route("/technician/dashboard")
     def technician_dashboard_page():
         return render_template("dashboards/technician_dashboard.html")
+
     # ---------------------------------------------------------------
     # Serve CSS from styles/css (Flask's default static folder only
     # covers the top-level "static" directory, so this extra route
