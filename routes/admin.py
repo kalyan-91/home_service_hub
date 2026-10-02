@@ -16,10 +16,20 @@ def list_customers():
     return jsonify(rows)
 
 
+@admin_bp.route("/customers/<int:customer_id>/stats", methods=["GET"])
+def customer_stats(customer_id):
+    return jsonify(statistics.customer_statistics(customer_id))
+
+
 @admin_bp.route("/technicians", methods=["GET"])
 def list_technicians():
     rows = run_query("SELECT user_id, name, email, created_at FROM users WHERE role='technician'", fetch=True)
     return jsonify(rows)
+
+
+@admin_bp.route("/technicians/<int:technician_id>/stats", methods=["GET"])
+def technician_stats(technician_id):
+    return jsonify(statistics.technician_statistics(technician_id))
 
 
 @admin_bp.route("/technicians/<int:technician_id>/verify", methods=["POST"])
@@ -32,6 +42,31 @@ def verify_technician(technician_id):
     return jsonify({"message": "Technician verified", "technician_id": technician_id})
 
 
+@admin_bp.route("/services", methods=["GET"])
+def list_services():
+    rows = run_query("SELECT * FROM services ORDER BY name", fetch=True)
+    return jsonify(rows)
+
+
+@admin_bp.route("/services/<int:service_id>/deactivate", methods=["POST"])
+def deactivate_service(service_id):
+    # Assumes Member 1's `services` table has an is_active column
+    run_query(
+        "UPDATE services SET is_active=0 WHERE service_id=%s",
+        (service_id,), commit=True
+    )
+    return jsonify({"message": "Service deactivated", "service_id": service_id})
+
+
+@admin_bp.route("/services/<int:service_id>/activate", methods=["POST"])
+def activate_service(service_id):
+    run_query(
+        "UPDATE services SET is_active=1 WHERE service_id=%s",
+        (service_id,), commit=True
+    )
+    return jsonify({"message": "Service activated", "service_id": service_id})
+
+
 @admin_bp.route("/bookings", methods=["GET"])
 def list_bookings():
     status = request.args.get("status")
@@ -40,6 +75,15 @@ def list_bookings():
     else:
         rows = run_query("SELECT * FROM bookings ORDER BY created_at DESC", fetch=True)
     return jsonify(rows)
+
+
+@admin_bp.route("/bookings/<int:booking_id>/cancel", methods=["POST"])
+def admin_cancel_booking(booking_id):
+    run_query(
+        "UPDATE bookings SET status='Cancelled', updated_at=NOW() WHERE booking_id=%s",
+        (booking_id,), commit=True
+    )
+    return jsonify({"message": "Booking cancelled by admin", "booking_id": booking_id})
 
 
 @admin_bp.route("/complaints", methods=["GET"])
@@ -64,6 +108,12 @@ def list_reviews():
 def remove_review(review_id):
     run_query("DELETE FROM reviews WHERE review_id=%s", (review_id,), commit=True)
     return jsonify({"message": "Review removed", "review_id": review_id})
+
+
+@admin_bp.route("/payments", methods=["GET"])
+def list_payments():
+    rows = run_query("SELECT * FROM payments ORDER BY payment_date DESC", fetch=True)
+    return jsonify(rows)
 
 
 @admin_bp.route("/notifications", methods=["POST"])
