@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from database.connection import run_query
+from services.maintenance import create_reminder_after_service
 
 booking_bp = Blueprint("booking", __name__, url_prefix="/api/booking")
 
@@ -149,9 +150,38 @@ def start_booking(booking_id):
 def complete_booking(booking_id):
     data = request.get_json(silent=True) or {}
     final_cost = data.get("service_cost")
+
     if final_cost is not None:
-        return _transition(booking_id, "Completed", ", service_cost=%s", (final_cost,))
-    return _transition(booking_id, "Completed")
+        response = _transition(booking_id, "Completed", ", service_cost=%s", (final_cost,))
+    else:
+        response = _transition(booking_id, "Completed")
+
+    # Only proceed to service_history if the transition actually succeeded
+    # (response is a tuple (jsonify_result, status_code) on failure, or just
+    # jsonify_result with implicit 200 on success — check status via booking).
+    booking = get_booking_or_none(booking_id)
+    if booking and booking["status"] == "Completed":
+        booking_detail = run_query(
+            """SELECT b.booking_id, b.service_cost, s.name AS service_name,
+                      sr.appliance_id
+               FROM bookings b
+               LEFT JOIN services s ON s.service_id = b.service_id
+               LEFT JOIN service_requests sr ON sr.request_id = b.request_id
+               WHERE b.booking_id = %s""",
+            (booking_id,), fetch_one=True
+        ) or {}
+
+        run_query(
+            """INSERT INTO service_history (booking_id, appliance_id, service_type, cost, completed_date)
+               VALUES (%s, %s, %s, %s, NOW())""",
+            (booking_id, booking_detail.get("appliance_id"),
+             booking_detail.get("service_name"), booking.get("service_cost")),
+            commit=True
+        )
+
+        create_reminder_after_service(booking_id)
+
+    return response
 
 
 @booking_bp.route("/<int:booking_id>/cancel", methods=["POST"])
