@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Technicians near you{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>Technicians near you</h1>
+  <p>Ranked by distance, rating and experience for this service.</p>
+</section>
+
+<div id="nearby-message" class="alert" role="status" hidden></div>
+
+<div id="nearby-root" data-service-id="{{ request.args.get('service_id', '') }}">
+
+  <section class="card" id="coords-card" hidden>
+    <h2>Where should we search from?</h2>
+    <p class="muted">We need your location to find technicians nearby.</p>
+    <button type="button" class="btn btn-secondary" id="btn-locate">Use my current location</button>
+    <form id="coords-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="c-lat">Latitude</label>
+          <input type="number" id="c-lat" step="any" required>
+        </div>
+        <div class="form-group">
+          <label for="c-lon">Longitude</label>
+          <input type="number" id="c-lon" step="any" required>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Search this location</button>
+    </form>
+  </section>
+
+  <div class="filter-bar" id="view-toggle" role="group" aria-label="View" hidden>
+    <button type="button" class="chip is-active" data-view="list">List</button>
+    <button type="button" class="chip" data-view="map">Map</button>
+  </div>
+
+  <div id="nearby-list" class="item-list"><p class="muted">Loading…</p></div>
+  <div id="nearby-map" class="map-placeholder" hidden></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/technician_matching.js') }}"></script>
+{% endblock %}
