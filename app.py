@@ -14,6 +14,8 @@ from routes.admin import admin_bp
 from routes.booking import booking_bp
 from routes.move import move_bp
 from routes.payments import payments_bp
+from routes.reviews import reviews_bp
+from services.maintenance import maintenance_bp
 
 
 class CustomJSONProvider(DefaultJSONProvider):
@@ -42,6 +44,8 @@ def create_app():
     app.register_blueprint(booking_bp)
     app.register_blueprint(move_bp)
     app.register_blueprint(payments_bp)
+    app.register_blueprint(maintenance_bp)
+    app.register_blueprint(reviews_bp)
 
     # Makes {{ current_user_id }} available in every template, so pages can set
     # window.CURRENT_USER_ID = {{ current_user_id | tojson }};
