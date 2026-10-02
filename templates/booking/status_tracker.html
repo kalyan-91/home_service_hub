@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Booking status{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>Booking status</h1>
+  <p>Track your service request from here.</p>
+</section>
+
+<div id="tracker-message" class="alert" role="status" hidden></div>
+
+<div id="tracker-root" class="card" data-booking-id="{{ booking_id or '' }}">
+  <div id="tracker-body"><p class="muted">Loading your booking…</p></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/status_tracker.js') }}"></script>
+{% endblock %}
