@@ -10,10 +10,10 @@ function esc(s) {
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
-function getId(s)    { return s.service_id ?? s.id; }
-function getName(s)  { return s.name ?? s.service_name ?? s.title ?? "Service"; }
-function getCat(s)   { return s.category ?? s.category_name ?? ""; }
-function getPrice(s) { return s.price ?? s.base_price ?? s.cost ?? null; }
+function getId(s)    { return s.service_id; }
+function getName(s)  { return s.name ?? "Service"; }
+function getCat(s)   { return s.category ?? ""; }
+function getPrice(s) { return s.price_range ?? null; }
 
 function renderChips() {
   const cats = [...new Set(all.map(getCat).filter(Boolean))];
@@ -48,7 +48,8 @@ function render() {
       <article class="svc-card">
         <h3>${esc(getName(s))}</h3>
         <p>${esc(s.description ?? "")}</p>
-        ${price !== null ? `<div class="svc-price">₹${esc(price)}</div>` : ""}
+        ${price ? `<div class="svc-price">${esc(price)}</div>` : ""}
+        ${s.estimated_duration ? `<div class="svc-msg">⏱ ${esc(s.estimated_duration)}</div>` : ""}
         <div class="svc-actions">
           <a class="book" href="/bookings/new?service_id=${encodeURIComponent(id)}">Book</a>
           <a class="more" href="/services/${encodeURIComponent(id)}">Details</a>
