@@ -3,8 +3,10 @@ from database.connection import run_query
 
 booking_bp = Blueprint("booking", __name__, url_prefix="/api/booking")
 
-# Valid status flow: Pending -> Assigned -> Accepted -> Scheduled -> In Progress -> Completed
-# Cancelled can happen from any state except Completed.
+# Matches the `status` enum on the real bookings table.
+# NOTE: confirm this exact list matches your enum — run:
+#   SHOW COLUMNS FROM bookings LIKE 'status';
+# and check the full enum(...) values if any insert/update fails.
 VALID_TRANSITIONS = {
     "Pending": ["Assigned", "Cancelled"],
     "Assigned": ["Accepted", "Cancelled"],
@@ -17,25 +19,33 @@ VALID_TRANSITIONS = {
 
 
 def get_booking_or_none(booking_id):
-    rows = run_query("SELECT * FROM bookings WHERE booking_id=%s", (booking_id,), fetch=True)
-    return rows[0] if rows else None
+    return run_query("SELECT * FROM bookings WHERE booking_id=%s", (booking_id,), fetch_one=True)
 
 
 @booking_bp.route("", methods=["POST"])
 def create_booking():
+    """Technician is chosen up front (from nearby-matching results) since
+    bookings.technician_id is NOT NULL in the real schema."""
     data = request.get_json(force=True)
     customer_id = data.get("customer_id")
+    technician_id = data.get("technician_id")
     service_id = data.get("service_id")
-    scheduled_date = data.get("scheduled_date")
-    appliance_id = data.get("appliance_id")  # optional
+    booking_date = data.get("booking_date")
+    booking_time = data.get("booking_time")       # optional
+    location = data.get("location")                 # optional
+    service_cost = data.get("service_cost")         # optional, can be set later
+    request_id = data.get("request_id")              # optional, links to service_requests
 
-    if not customer_id or not service_id or not scheduled_date:
-        return jsonify({"error": "customer_id, service_id and scheduled_date are required"}), 400
+    if not customer_id or not technician_id or not service_id or not booking_date:
+        return jsonify({"error": "customer_id, technician_id, service_id and booking_date are required"}), 400
 
     booking_id = run_query(
-        """INSERT INTO bookings (customer_id, service_id, appliance_id, scheduled_date, status, created_at)
-           VALUES (%s, %s, %s, %s, 'Pending', NOW())""",
-        (customer_id, service_id, appliance_id, scheduled_date),
+        """INSERT INTO bookings
+           (customer_id, technician_id, service_id, request_id, location,
+            booking_date, booking_time, service_cost, status)
+           VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'Pending')""",
+        (customer_id, technician_id, service_id, request_id, location,
+         booking_date, booking_time, service_cost),
         commit=True
     )
     return jsonify({
@@ -64,7 +74,7 @@ def get_booking_status(booking_id):
 @booking_bp.route("/customer/<int:customer_id>", methods=["GET"])
 def get_customer_bookings(customer_id):
     rows = run_query(
-        "SELECT * FROM bookings WHERE customer_id=%s ORDER BY created_at DESC",
+        "SELECT * FROM bookings WHERE customer_id=%s ORDER BY booking_date DESC",
         (customer_id,), fetch=True
     )
     return jsonify(rows)
@@ -73,7 +83,7 @@ def get_customer_bookings(customer_id):
 @booking_bp.route("/technician/<int:technician_id>", methods=["GET"])
 def get_technician_bookings(technician_id):
     rows = run_query(
-        "SELECT * FROM bookings WHERE technician_id=%s ORDER BY created_at DESC",
+        "SELECT * FROM bookings WHERE technician_id=%s ORDER BY booking_date DESC",
         (technician_id,), fetch=True
     )
     return jsonify(rows)
@@ -94,7 +104,7 @@ def _transition(booking_id, next_status, extra_set_sql="", extra_params=()):
 
     params = (next_status,) + extra_params + (booking_id,)
     run_query(
-        f"UPDATE bookings SET status=%s, updated_at=NOW() {extra_set_sql} WHERE booking_id=%s",
+        f"UPDATE bookings SET status=%s {extra_set_sql} WHERE booking_id=%s",
         params,
         commit=True
     )
@@ -103,12 +113,14 @@ def _transition(booking_id, next_status, extra_set_sql="", extra_params=()):
 
 
 @booking_bp.route("/<int:booking_id>/assign", methods=["POST"])
-def assign_technician(booking_id):
-    data = request.get_json(force=True)
-    technician_id = data.get("technician_id")
-    if not technician_id:
-        return jsonify({"error": "technician_id is required"}), 400
-    return _transition(booking_id, "Assigned", ", technician_id=%s", (technician_id,))
+def mark_assigned(booking_id):
+    """Technician already set at creation — this just confirms/notifies.
+    Optionally pass technician_id to reassign to someone else."""
+    data = request.get_json(silent=True) or {}
+    new_technician_id = data.get("technician_id")
+    if new_technician_id:
+        return _transition(booking_id, "Assigned", ", technician_id=%s", (new_technician_id,))
+    return _transition(booking_id, "Assigned")
 
 
 @booking_bp.route("/<int:booking_id>/accept", methods=["POST"])
@@ -119,9 +131,12 @@ def accept_booking(booking_id):
 @booking_bp.route("/<int:booking_id>/schedule", methods=["POST"])
 def schedule_booking(booking_id):
     data = request.get_json(silent=True) or {}
-    new_date = data.get("scheduled_date")
+    new_date = data.get("booking_date")
+    new_time = data.get("booking_time")
+    if new_date and new_time:
+        return _transition(booking_id, "Scheduled", ", booking_date=%s, booking_time=%s", (new_date, new_time))
     if new_date:
-        return _transition(booking_id, "Scheduled", ", scheduled_date=%s", (new_date,))
+        return _transition(booking_id, "Scheduled", ", booking_date=%s", (new_date,))
     return _transition(booking_id, "Scheduled")
 
 
@@ -132,6 +147,10 @@ def start_booking(booking_id):
 
 @booking_bp.route("/<int:booking_id>/complete", methods=["POST"])
 def complete_booking(booking_id):
+    data = request.get_json(silent=True) or {}
+    final_cost = data.get("service_cost")
+    if final_cost is not None:
+        return _transition(booking_id, "Completed", ", service_cost=%s", (final_cost,))
     return _transition(booking_id, "Completed")
 
 
