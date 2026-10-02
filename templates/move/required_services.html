@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Services needed for your move{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>Services needed for your move</h1>
+  <p>Based on the appliances you're moving, here's what needs to be done.</p>
+</section>
+
+<div id="required-message" class="alert" role="status" hidden></div>
+
+<div id="required-list" class="item-list">
+  <p class="muted">Working out what your appliances need…</p>
+</div>
+
+<div class="flow-actions">
+  <p class="muted" id="required-total"></p>
+  <button type="button" class="btn btn-primary" id="btn-continue" disabled>Find technicians</button>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/move_required_services.js') }}"></script>
+{% endblock %}
