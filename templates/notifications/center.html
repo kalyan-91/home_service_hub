@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>Notifications</h1>
+  <p>Updates about your bookings and account.</p>
+</section>
+
+<div id="notif-message" class="alert" role="status" hidden></div>
+
+<div class="filter-bar" id="notif-filters" role="group" aria-label="Filter notifications">
+  <button type="button" class="chip is-active" data-filter="">All</button>
+  <button type="button" class="chip" data-filter="Unread">Unread</button>
+</div>
+
+<div id="notif-root" data-user-id="{{ current_user_id or '' }}">
+  <div id="notif-list" class="item-list">
+    <p class="muted">Loading notifications…</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
+{% endblock %}
