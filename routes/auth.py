@@ -4,6 +4,13 @@ from database.connection import run_query
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
+# Where each role lands after a successful login
+DASHBOARD_BY_ROLE = {
+    "admin": "/admin/dashboard",
+    "technician": "/technician/dashboard",
+    "customer": "/customer",
+}
+
 
 @auth_bp.route("/register/customer", methods=["POST"])
 def register_customer():
@@ -71,36 +78,72 @@ def register_technician():
     return jsonify({"message": "Technician registered", "technician_id": user_id}), 201
 
 
+def _authenticate(email, password):
+    """Returns (user, error_response). Exactly one of them is None."""
+    if not email or not password:
+        return None, (jsonify({"error": "Email and password are required"}), 400)
+
+    user = run_query(
+        "SELECT user_id, name, password_hash, role, status FROM users WHERE email = %s",
+        (email.strip().lower(),),
+        fetch_one=True,
+    )
+    if not user or not check_password_hash(user["password_hash"], password):
+        return None, (jsonify({"error": "Invalid email or password"}), 401)
+
+    if user["status"] == "inactive":
+        return None, (jsonify({"error": "This account has been deactivated"}), 403)
+
+    return user, None
+
+
+def _start_session(user):
+    session.clear()
+    session["user_id"] = user["user_id"]
+    session["role"] = user["role"]
+
+
 @auth_bp.route("/login", methods=["POST"])
 def login():
     """Shared login for customer, technician, and admin — role is read
     from the users table and used to route the frontend to the right
-    dashboard."""
+    dashboard. The response includes a ready-made 'redirect' URL."""
     data = request.get_json(force=True)
-    email = data.get("email")
-    password = data.get("password")
-    if not email or not password:
-        return jsonify({"error": "Email and password are required"}), 400
+    user, error = _authenticate(data.get("email"), data.get("password"))
+    if error:
+        return error
 
-    user = run_query(
-        "SELECT user_id, name, password_hash, role, status FROM users WHERE email = %s",
-        (email,),
-        fetch_one=True,
-    )
-    if not user or not check_password_hash(user["password_hash"], password):
-        return jsonify({"error": "Invalid email or password"}), 401
-
-    if user["status"] == "inactive":
-        return jsonify({"error": "This account has been deactivated"}), 403
-
-    session["user_id"] = user["user_id"]
-    session["role"] = user["role"]
+    _start_session(user)
 
     return jsonify({
         "message": "Login successful",
         "user_id": user["user_id"],
         "name": user["name"],
         "role": user["role"],
+        "redirect": DASHBOARD_BY_ROLE.get(user["role"], "/"),
+    })
+
+
+@auth_bp.route("/admin-login", methods=["POST"])
+def admin_login():
+    """Used by /admin/login. Only the admin account can sign in here;
+    customers and technicians get the same generic error as a wrong password."""
+    data = request.get_json(force=True)
+    user, error = _authenticate(data.get("email"), data.get("password"))
+    if error:
+        return error
+
+    if user["role"] != "admin":
+        return jsonify({"error": "Invalid email or password"}), 401
+
+    _start_session(user)
+
+    return jsonify({
+        "message": "Login successful",
+        "user_id": user["user_id"],
+        "name": user["name"],
+        "role": "admin",
+        "redirect": "/admin/dashboard",
     })
 
 
