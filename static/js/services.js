@@ -1,119 +1,71 @@
-/*
- * static/js/services.js — logic for templates/services/catalog.html
- *
- * Backend (routes/services.py):
- *   GET /api/services                    all services
- *   GET /api/services?category=Plumbing  filtered by category
- *   GET /api/services/categories         list of category names
- *
- * Uses the shared helper from static/js/api.js: apiGet(url).
- * ASSUMPTION: apiGet returns parsed JSON and throws an Error with a readable
- * message when the request fails. If api.js works differently, only the two
- * calls marked "api.js" below need to change.
- */
+let all = [];
+let category = "";
 
-let activeCategory = '';
-let loadedServices = [];
+const grid = document.getElementById("svc-grid");
+const chips = document.getElementById("svc-chips");
+const search = document.getElementById("svc-search");
 
-const $ = (id) => document.getElementById(id);
-
-function escapeHtml(value) {
-  if (value === null || value === undefined) return '';
-  return String(value).replace(/[&<>"']/g, (c) =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
-function showMessage(text) {
-  const box = $('services-message');
-  box.className = 'alert alert-error';
-  box.textContent = text;
-  box.hidden = false;
-}
-function clearMessage() {
-  const box = $('services-message');
-  box.hidden = true;
-  box.textContent = '';
-}
+function getId(s)    { return s.service_id ?? s.id; }
+function getName(s)  { return s.name ?? s.service_name ?? s.title ?? "Service"; }
+function getCat(s)   { return s.category ?? s.category_name ?? ""; }
+function getPrice(s) { return s.price ?? s.base_price ?? s.cost ?? null; }
 
-/* ---------- category filters ---------- */
-async function loadCategories() {
-  try {
-    const categories = await apiGet('/api/services/categories'); // api.js
-    const bar = $('category-filters');
-    categories.forEach((name) => {
-      const chip = document.createElement('button');
-      chip.type = 'button';
-      chip.className = 'chip';
-      chip.dataset.category = name;
-      chip.textContent = name;
-      bar.appendChild(chip);
-    });
-  } catch (err) {
-    // Filters are optional: the full list still works without them.
-  }
+function renderChips() {
+  const cats = [...new Set(all.map(getCat).filter(Boolean))];
+  chips.innerHTML = "";
+  if (!cats.length) return;
+  ["", ...cats].forEach(c => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "svc-chip" + (c === category ? " active" : "");
+    b.textContent = c || "All";
+    b.onclick = () => { category = c; renderChips(); render(); };
+    chips.appendChild(b);
+  });
 }
 
-$('category-filters').addEventListener('click', (event) => {
-  const chip = event.target.closest('.chip');
-  if (!chip) return;
-  document.querySelectorAll('#category-filters .chip').forEach((c) => c.classList.remove('is-active'));
-  chip.classList.add('is-active');
-  activeCategory = chip.dataset.category;
-  loadServices();
-});
+function render() {
+  const q = search.value.trim().toLowerCase();
+  const list = all.filter(s => {
+    const text = (getName(s) + " " + (s.description ?? "") + " " + getCat(s)).toLowerCase();
+    return (!category || getCat(s) === category) && (!q || text.includes(q));
+  });
 
-/* ---------- search (runs on the services already loaded) ---------- */
-$('service-search').addEventListener('input', renderServices);
-
-function matchesSearch(service, term) {
-  if (!term) return true;
-  const haystack = [service.name, service.description, service.category, service.required_skill]
-    .filter(Boolean).join(' ').toLowerCase();
-  return haystack.includes(term);
-}
-
-/* ---------- service cards ---------- */
-function renderServices() {
-  const grid = $('service-grid');
-  const term = $('service-search').value.trim().toLowerCase();
-  const visible = loadedServices.filter((s) => matchesSearch(s, term));
-
-  if (!visible.length) {
-    grid.innerHTML = loadedServices.length
-      ? '<p class="muted">No services match your search. Try a different word.</p>'
-      : '<p class="muted">No services in this category yet.</p>';
+  if (!list.length) {
+    grid.innerHTML = '<p class="svc-msg">No services found.</p>';
     return;
   }
 
-  grid.innerHTML = visible.map((s) => `
-    <article class="card service-card">
-      <span class="badge">${escapeHtml(s.category)}</span>
-      <h2 class="card-title">${escapeHtml(s.name)}</h2>
-      <p class="muted">${escapeHtml(s.description || 'No description yet.')}</p>
-      <dl class="service-meta">
-        <dt>Price</dt><dd>${escapeHtml(s.price_range || 'On request')}</dd>
-        <dt>Duration</dt><dd>${escapeHtml(s.estimated_duration || '—')}</dd>
-        <dt>Skill needed</dt><dd>${escapeHtml(s.required_skill || '—')}</dd>
-      </dl>
-      <a class="btn btn-primary" href="/bookings/new?service_id=${encodeURIComponent(s.service_id)}">Book this service</a>
-    </article>`).join('');
+  grid.innerHTML = list.map(s => {
+    const id = getId(s);
+    const price = getPrice(s);
+    return `
+      <article class="svc-card">
+        <h3>${esc(getName(s))}</h3>
+        <p>${esc(s.description ?? "")}</p>
+        ${price !== null ? `<div class="svc-price">₹${esc(price)}</div>` : ""}
+        <div class="svc-actions">
+          <a class="book" href="/bookings/new?service_id=${encodeURIComponent(id)}">Book</a>
+          <a class="more" href="/services/${encodeURIComponent(id)}">Details</a>
+        </div>
+      </article>`;
+  }).join("");
 }
 
-async function loadServices() {
-  const grid = $('service-grid');
-  clearMessage();
-  grid.innerHTML = '<p class="muted">Loading services…</p>';
-  try {
-    const url = activeCategory
-      ? `/api/services?category=${encodeURIComponent(activeCategory)}`
-      : '/api/services';
-    loadedServices = await apiGet(url); // api.js
-    renderServices();
-  } catch (err) {
-    grid.innerHTML = '';
-    showMessage("Couldn't load services: " + err.message);
-  }
-}
+search.addEventListener("input", render);
 
-loadCategories();
-loadServices();
+fetch("/api/services")
+  .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+  .then(data => {
+    all = Array.isArray(data) ? data : (data.services ?? data.data ?? []);
+    renderChips();
+    render();
+  })
+  .catch(err => {
+    grid.innerHTML = '<p class="svc-msg">Could not load services (' + esc(err.message) + ').</p>';
+  });
