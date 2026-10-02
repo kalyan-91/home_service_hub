@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}My stats{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>My stats</h1>
+  <p>How your jobs have been going.</p>
+</section>
+
+<div id="stats-message" class="alert" role="status" hidden></div>
+
+<div id="stats-root" data-technician-id="{{ current_user_id or '' }}">
+
+<div id="stats-grid" class="summary-grid" hidden>
+  <div class="summary-card">
+    <span class="summary-label">Jobs completed</span>
+    <span class="summary-value" id="stat-jobs">0</span>
+  </div>
+  <div class="summary-card">
+    <span class="summary-label">Average rating</span>
+    <span class="summary-value" id="stat-rating">—</span>
+  </div>
+  <div class="summary-card">
+    <span class="summary-label">Cancellation rate</span>
+    <span class="summary-value" id="stat-cancel">0%</span>
+  </div>
+  <div class="summary-card">
+    <span class="summary-label">Total earnings</span>
+    <span class="summary-value" id="stat-earnings">₹0</span>
+  </div>
+</div>
+
+<div id="stats-body"><p class="muted">Loading your stats…</p></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/technician_stats.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Add completed work{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>Add completed work</h1>
+  <p>Mark a job as done and record what was done.</p>
+</section>
+
+<div id="work-message" class="alert" role="status" hidden></div>
+
+<div id="work-root" data-technician-id="{{ current_user_id or '' }}">
+
+  <div class="form-group">
+    <label for="booking-select">Job</label>
+    <select id="booking-select"><option value="">Loading your jobs…</option></select>
+  </div>
+
+  <form id="work-form" hidden>
+    <div class="form-group">
+      <label for="work-type">Service performed</label>
+      <input type="text" id="work-type" placeholder="e.g. AC gas refill and filter clean" required>
+    </div>
+    <div class="form-group">
+      <label for="work-cost">Final cost (₹)</label>
+      <input type="number" id="work-cost" min="0" step="1" required>
+    </div>
+    <div class="form-group">
+      <label for="work-notes">Notes (optional)</label>
+      <textarea id="work-notes" rows="4" placeholder="Anything the customer or admin should know"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary" id="btn-submit-work">Mark as completed</button>
+  </form>
+
+  <div id="work-done" hidden>
+    <h2>Job marked as completed</h2>
+    <p class="muted">The customer can now rate this service.</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/add_completed_work.js') }}"></script>
+{% endblock %}
