@@ -1,85 +1,140 @@
 from flask import Blueprint, jsonify, request
 from database.connection import run_query
 
-booking_bp = Blueprint("booking", __name__, url_prefix="/api/bookings")
+booking_bp = Blueprint("booking", __name__, url_prefix="/api/booking")
 
-VALID_STATUSES = ["Pending", "Assigned", "Accepted", "Scheduled", "In Progress", "Completed", "Cancelled"]
+# Valid status flow: Pending -> Assigned -> Accepted -> Scheduled -> In Progress -> Completed
+# Cancelled can happen from any state except Completed.
+VALID_TRANSITIONS = {
+    "Pending": ["Assigned", "Cancelled"],
+    "Assigned": ["Accepted", "Cancelled"],
+    "Accepted": ["Scheduled", "Cancelled"],
+    "Scheduled": ["In Progress", "Cancelled"],
+    "In Progress": ["Completed", "Cancelled"],
+    "Completed": [],
+    "Cancelled": []
+}
+
+
+def get_booking_or_none(booking_id):
+    rows = run_query("SELECT * FROM bookings WHERE booking_id=%s", (booking_id,), fetch=True)
+    return rows[0] if rows else None
 
 
 @booking_bp.route("", methods=["POST"])
 def create_booking():
     data = request.get_json(force=True)
-    required = ["customer_id", "technician_id", "service_id", "location", "booking_date", "booking_time", "service_cost"]
-    missing = [f for f in required if f not in data]
-    if missing:
-        return jsonify({"error": f"Missing fields: {', '.join(missing)}"}), 400
+    customer_id = data.get("customer_id")
+    service_id = data.get("service_id")
+    scheduled_date = data.get("scheduled_date")
+    appliance_id = data.get("appliance_id")  # optional
+
+    if not customer_id or not service_id or not scheduled_date:
+        return jsonify({"error": "customer_id, service_id and scheduled_date are required"}), 400
 
     booking_id = run_query(
-        """INSERT INTO bookings (customer_id, technician_id, service_id, request_id,
-                                  location, booking_date, booking_time, service_cost, status)
-           VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'Pending')""",
-        (data["customer_id"], data["technician_id"], data["service_id"], data.get("request_id"),
-         data["location"], data["booking_date"], data["booking_time"], data["service_cost"]),
+        """INSERT INTO bookings (customer_id, service_id, appliance_id, scheduled_date, status, created_at)
+           VALUES (%s, %s, %s, %s, 'Pending', NOW())""",
+        (customer_id, service_id, appliance_id, scheduled_date),
         commit=True
     )
-
-    run_query(
-        """INSERT INTO notifications (user_id, message, type, status)
-           VALUES (%s, %s, 'new_service_request', 'Unread')""",
-        (data["technician_id"], f"New booking request #{booking_id}"), commit=True
-    )
-    return jsonify({"message": "Booking created", "booking_id": booking_id}), 201
+    return jsonify({
+        "message": "Booking created",
+        "booking_id": booking_id,
+        "status": "Pending"
+    }), 201
 
 
 @booking_bp.route("/<int:booking_id>", methods=["GET"])
 def get_booking(booking_id):
-    row = run_query("SELECT * FROM bookings WHERE booking_id=%s", (booking_id,), fetch_one=True)
-    if not row:
+    booking = get_booking_or_none(booking_id)
+    if not booking:
         return jsonify({"error": "Booking not found"}), 404
-    return jsonify(row)
+    return jsonify(booking)
+
+
+@booking_bp.route("/<int:booking_id>/status", methods=["GET"])
+def get_booking_status(booking_id):
+    booking = get_booking_or_none(booking_id)
+    if not booking:
+        return jsonify({"error": "Booking not found"}), 404
+    return jsonify({"booking_id": booking_id, "status": booking["status"]})
 
 
 @booking_bp.route("/customer/<int:customer_id>", methods=["GET"])
-def bookings_for_customer(customer_id):
-    rows = run_query("SELECT * FROM bookings WHERE customer_id=%s ORDER BY created_at DESC", (customer_id,), fetch=True)
+def get_customer_bookings(customer_id):
+    rows = run_query(
+        "SELECT * FROM bookings WHERE customer_id=%s ORDER BY created_at DESC",
+        (customer_id,), fetch=True
+    )
     return jsonify(rows)
 
 
 @booking_bp.route("/technician/<int:technician_id>", methods=["GET"])
-def bookings_for_technician(technician_id):
-    rows = run_query("SELECT * FROM bookings WHERE technician_id=%s ORDER BY created_at DESC", (technician_id,), fetch=True)
+def get_technician_bookings(technician_id):
+    rows = run_query(
+        "SELECT * FROM bookings WHERE technician_id=%s ORDER BY created_at DESC",
+        (technician_id,), fetch=True
+    )
     return jsonify(rows)
 
 
-@booking_bp.route("/<int:booking_id>/status", methods=["PATCH"])
-def update_status(booking_id):
+def _transition(booking_id, next_status, extra_set_sql="", extra_params=()):
+    booking = get_booking_or_none(booking_id)
+    if not booking:
+        return jsonify({"error": "Booking not found"}), 404
+
+    current_status = booking["status"]
+    allowed = VALID_TRANSITIONS.get(current_status, [])
+    if next_status not in allowed:
+        return jsonify({
+            "error": f"Cannot move booking from '{current_status}' to '{next_status}'",
+            "allowed_next_statuses": allowed
+        }), 400
+
+    params = (next_status,) + extra_params + (booking_id,)
+    run_query(
+        f"UPDATE bookings SET status=%s, updated_at=NOW() {extra_set_sql} WHERE booking_id=%s",
+        params,
+        commit=True
+    )
+
+    return jsonify({"message": f"Booking moved to {next_status}", "booking_id": booking_id, "status": next_status})
+
+
+@booking_bp.route("/<int:booking_id>/assign", methods=["POST"])
+def assign_technician(booking_id):
     data = request.get_json(force=True)
-    new_status = data.get("status")
-    if new_status not in VALID_STATUSES:
-        return jsonify({"error": f"status must be one of {VALID_STATUSES}"}), 400
+    technician_id = data.get("technician_id")
+    if not technician_id:
+        return jsonify({"error": "technician_id is required"}), 400
+    return _transition(booking_id, "Assigned", ", technician_id=%s", (technician_id,))
 
-    run_query("UPDATE bookings SET status=%s WHERE booking_id=%s", (new_status, booking_id), commit=True)
 
-    booking = run_query("SELECT customer_id FROM bookings WHERE booking_id=%s", (booking_id,), fetch_one=True)
-    if booking:
-        run_query(
-            """INSERT INTO notifications (user_id, message, type, status)
-               VALUES (%s, %s, 'booking_status_update', 'Unread')""",
-            (booking["customer_id"], f"Booking #{booking_id} status changed to {new_status}"), commit=True
-        )
+@booking_bp.route("/<int:booking_id>/accept", methods=["POST"])
+def accept_booking(booking_id):
+    return _transition(booking_id, "Accepted")
 
-    if new_status == "Completed":
-        run_query(
-            """INSERT INTO payments (booking_id, customer_id, amount, status)
-               SELECT booking_id, customer_id, service_cost, 'Pending'
-               FROM bookings WHERE booking_id=%s""",
-            (booking_id,), commit=True
-        )
 
-    return jsonify({"message": "Status updated", "booking_id": booking_id, "status": new_status})
+@booking_bp.route("/<int:booking_id>/schedule", methods=["POST"])
+def schedule_booking(booking_id):
+    data = request.get_json(silent=True) or {}
+    new_date = data.get("scheduled_date")
+    if new_date:
+        return _transition(booking_id, "Scheduled", ", scheduled_date=%s", (new_date,))
+    return _transition(booking_id, "Scheduled")
+
+
+@booking_bp.route("/<int:booking_id>/start", methods=["POST"])
+def start_booking(booking_id):
+    return _transition(booking_id, "In Progress")
+
+
+@booking_bp.route("/<int:booking_id>/complete", methods=["POST"])
+def complete_booking(booking_id):
+    return _transition(booking_id, "Completed")
 
 
 @booking_bp.route("/<int:booking_id>/cancel", methods=["POST"])
 def cancel_booking(booking_id):
-    run_query("UPDATE bookings SET status='Cancelled' WHERE booking_id=%s", (booking_id,), commit=True)
-    return jsonify({"message": "Booking cancelled", "booking_id": booking_id})
+    return _transition(booking_id, "Cancelled")
