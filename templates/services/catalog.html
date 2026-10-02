@@ -1,30 +1,46 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Services — HomeService OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles/css/styles.css">
+<link rel="stylesheet" href="/styles/css/services.css">
+</head>
+<body>
 
-{% block title %}Services{% endblock %}
+<div class="top" id="top">
+  <div class="wrap">
+    <a class="brand" href="/">
+      <span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8M5 9.5V21h5v-6h4v6h5V9.5"/></svg></span>
+      <span>Home<b>Service</b> OS</span>
+    </a>
+    <nav id="main-nav" aria-label="Main navigation">
+      <a href="/services">Services</a>
+      <a href="/technicians">Technicians</a>
+      <a href="/bookings">Bookings</a>
+      <a href="/customer">My account</a>
+      <a href="/admin/login">Admin</a>
+      <a href="/technician/dashboard">Technician dashboard</a>
+    </nav>
+  </div>
+</div>
 
-{% block content %}
-<section class="page-header">
+<main class="svc-page">
   <h1>Services</h1>
-  <p>Browse the services we offer and book one in a few steps.</p>
-</section>
+  <p class="sub">Browse the services we offer and book one in a few steps.</p>
 
-<div class="form-group">
-  <label for="service-search">Search services</label>
-  <input type="search" id="service-search" placeholder="Search by name or keyword">
-</div>
+  <input type="search" id="svc-search" class="svc-search" placeholder="Search by name or keyword">
+  <div class="svc-chips" id="svc-chips"></div>
 
-<div class="filter-bar" id="category-filters" role="group" aria-label="Filter by category">
-  <button type="button" class="chip is-active" data-category="">All</button>
-</div>
+  <div class="svc-grid" id="svc-grid">
+    <p class="svc-msg">Loading services…</p>
+  </div>
+</main>
 
-<div id="services-message" class="alert" role="status" hidden></div>
-
-<div class="card-grid" id="service-grid">
-  <p class="muted">Loading services…</p>
-</div>
-{% endblock %}
-
-{% block scripts %}
-<script src="{{ url_for('static', filename='js/api.js') }}"></script>
-<script src="{{ url_for('static', filename='js/services.js') }}"></script>
-{% endblock %}
+<script src="/styles/js/services.js"></script>
+</body>
+</html>
