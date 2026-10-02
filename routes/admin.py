@@ -132,3 +132,32 @@ def send_notification():
         (user_id, message, notif_type), commit=True
     )
     return jsonify({"message": "Notification sent", "notification_id": notification_id}), 201
+
+
+# ---------------------------------------------------------------
+# Advanced statistics — correlation, regression, hypothesis tests
+# ---------------------------------------------------------------
+ 
+@admin_bp.route("/statistics/cost-rating-correlation", methods=["GET"])
+def cost_rating_correlation():
+    return jsonify(statistics.cost_vs_rating_correlation())
+ 
+ 
+@admin_bp.route("/statistics/revenue-trend", methods=["GET"])
+def revenue_trend():
+    return jsonify(statistics.revenue_trend_regression())
+ 
+ 
+@admin_bp.route("/statistics/compare-technicians", methods=["GET"])
+def compare_technicians():
+    tech_a = request.args.get("technician_a", type=int)
+    tech_b = request.args.get("technician_b", type=int)
+    if not tech_a or not tech_b:
+        return jsonify({"error": "technician_a and technician_b query params are required"}), 400
+    return jsonify(statistics.compare_technician_ratings(tech_a, tech_b))
+ 
+ 
+@admin_bp.route("/statistics/category-cost-anova", methods=["GET"])
+def category_cost_anova():
+    return jsonify(statistics.service_category_anova())
+ 
