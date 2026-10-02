@@ -45,9 +45,34 @@ svg.ico{width:18px;height:18px}
 
 /* Sidebar */
 .rail{
-  position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:20px;
-  padding:22px 14px;background:linear-gradient(180deg,var(--side),var(--side-2));color:var(--side-text);
+  position:sticky;
+  top:0;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  padding:22px 14px;
+  background:linear-gradient(180deg,var(--side),var(--side-2));
+  color:var(--side-text);
+
+  overflow-y:auto;
+  overflow-x:hidden;
 }
+
+.rail::-webkit-scrollbar{
+  width:6px;
+}
+
+.rail::-webkit-scrollbar-thumb{
+  background:rgba(255,255,255,.3);
+  border-radius:10px;
+}
+
+.rail::-webkit-scrollbar-track{
+  background:transparent;
+}
+
+
 .rail .brand{
   position:relative;display:flex;align-items:center;gap:10px;padding:4px 6px;
   font-size:18px;font-weight:700;line-height:1.2;color:#fff;letter-spacing:-.01em;
