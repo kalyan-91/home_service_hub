@@ -1,5 +1,7 @@
 from flask import Blueprint, request, jsonify
 from database.connection import run_query
+from services.technician_matching import find_nearby_technicians
+
 
 # Public (customer-facing) technician listing.
 # Separate from technician_bp (/api/technician), which is for the logged-in technician's own data.
@@ -50,6 +52,48 @@ def list_technicians():
     ) or []
 
     return jsonify([_clean(r) for r in rows])
+
+
+# GET /api/technicians/nearby?service_id=1&city=Anantapur
+#   optional: lat, lon, pincode, budget, date (YYYY-MM-DD), time (HH:MM), max_km
+# (Must stay a fixed path; "/nearby" does not clash with "/<int:technician_id>".)
+@technicians_public_bp.route("/nearby", methods=["GET"])
+def nearby_technicians():
+    a = request.args
+    try:
+        results = find_nearby_technicians(
+            service_id=int(a["service_id"]),
+            customer_lat=float(a["lat"]) if a.get("lat") else None,
+            customer_lon=float(a["lon"]) if a.get("lon") else None,
+            customer_city=a.get("city"),
+            customer_pincode=a.get("pincode"),
+            customer_budget=float(a["budget"]) if a.get("budget") else None,
+            requested_date=a.get("date"),
+            requested_time=a.get("time"),
+            max_distance_km=float(a.get("max_km", 15)),
+        )
+    except KeyError:
+        return jsonify({"error": "service_id is required"}), 400
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+
+    # Add technician names (users.user_id == technicians.technician_id)
+    if results:
+        ids = [r["technician_id"] for r in results]
+        placeholders = ",".join(["%s"] * len(ids))
+        names = run_query(
+            f"SELECT user_id, name FROM users WHERE user_id IN ({placeholders})",
+            tuple(ids), fetch=True,
+        ) or []
+        name_map = {n["user_id"]: n["name"] for n in names}
+        for r in results:
+            r["name"] = name_map.get(r["technician_id"])
+            # Decimal -> float so JSON is clean numbers, not strings
+            for key in ("latitude", "longitude"):
+                if r.get(key) is not None:
+                    r[key] = float(r[key])
+
+    return jsonify(results)
 
 
 # GET /api/technicians/<id>  (the cards link to /technicians/<id>)
