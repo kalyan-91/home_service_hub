@@ -17,6 +17,25 @@ def create_payment():
     if not booking_id or not customer_id or amount is None:
         return jsonify({"error": "booking_id, customer_id and amount are required"}), 400
 
+    # booking.py already auto-creates a payment row when a booking is marked
+    # "Completed". If one already exists for this booking, update it instead
+    # of inserting a second row.
+    existing = run_query(
+        "SELECT payment_id FROM payments WHERE booking_id=%s", (booking_id,), fetch_one=True
+    )
+    if existing:
+        run_query(
+            """UPDATE payments SET amount=%s, payment_method=%s, payment_date=NOW()
+               WHERE payment_id=%s""",
+            (amount, payment_method, existing["payment_id"]), commit=True
+        )
+        return jsonify({
+            "message": "Existing payment record updated",
+            "payment_id": existing["payment_id"],
+            "amount": amount,
+            "status": "Pending"
+        })
+
     payment_id = run_query(
         """INSERT INTO payments (booking_id, customer_id, amount, payment_method, status, payment_date)
            VALUES (%s, %s, %s, %s, 'Pending', NOW())""",
