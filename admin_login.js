@@ -2,7 +2,7 @@
 (function () {
   // CHANGE THIS to the login route in routes/auth.py if it differs.
   // The page sends JSON: { "email": "...", "password": "..." }
-  const LOGIN_API = "/api/auth/login";
+  const LOGIN_API = "/api/auth/admin-login";
   const AFTER_LOGIN = "/admin/dashboard";
 
   const form = document.getElementById("admin-login-form");
