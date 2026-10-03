@@ -181,6 +181,10 @@ def create_app():
         if "user_id" not in session or session.get("role") != "technician":
             return jsonify({"error": "Please log in as a technician first"}), 401
         return render_template("technician/profile.html")
+
+    @app.route("/technician/login")
+    def technician_login_page():
+        return render_template("auth/technician_login.html")
     # ---------------------------------------------------------------
     # Serve CSS from styles/css (Flask's default static folder only
     # covers the top-level "static" directory, so this extra route
