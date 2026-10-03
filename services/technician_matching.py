@@ -26,6 +26,7 @@ Matching steps:
 """
 
 import math
+import re
 from datetime import datetime, date, time
 
 from database.connection import run_query
@@ -52,13 +53,19 @@ def haversine_km(lat1, lon1, lat2, lon2):
 
 
 def parse_price_range(price_range):
-    """'500-800' -> (500.0, 800.0). Returns (None, None) if unparseable."""
-    try:
-        cleaned = (price_range or "").replace(" ", "").replace(",", "")
-        low, high = cleaned.split("-")
-        return float(low), float(high)
-    except (ValueError, AttributeError):
+    """
+    '500-800', '₹300 - ₹600', 'Rs. 1,000 to 2,000' -> (low, high).
+    A single number ('500') -> (500, 500). Returns (None, None) if unparseable.
+    """
+    if not price_range:
         return None, None
+    nums = re.findall(r"\d+(?:\.\d+)?", str(price_range).replace(",", ""))
+    if len(nums) >= 2:
+        low, high = float(nums[0]), float(nums[1])
+        return min(low, high), max(low, high)
+    if len(nums) == 1:
+        return float(nums[0]), float(nums[0])
+    return None, None
 
 
 def _resolve_day(requested_day=None, requested_date=None):
