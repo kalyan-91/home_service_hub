@@ -83,8 +83,7 @@ def create_app():
     # Base link opens the navigation hub page (templates/base.html)
     @app.route("/")
     def home():
-        return render_template("base.html")
-
+        return render_template("home.html")
     # Backend health check moved here
     @app.route("/health")
     def health_check():
