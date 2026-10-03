@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, session
 from database.connection import run_query
 from services.maintenance import create_reminder_after_service
 
@@ -19,6 +19,24 @@ VALID_TRANSITIONS = {
 }
 
 
+# ---------------------------------------------------------------
+# Security: every booking route needs a logged-in user
+# ---------------------------------------------------------------
+@booking_bp.before_request
+def require_login():
+    if "user_id" not in session:
+        return jsonify({"error": "Please log in first"}), 401
+
+
+def _is_admin():
+    return session.get("role") == "admin"
+
+
+def _can_access(booking):
+    """Admin, or the customer / technician who owns this booking."""
+    return _is_admin() or session["user_id"] in (booking["customer_id"], booking["technician_id"])
+
+
 def get_booking_or_none(booking_id):
     return run_query("SELECT * FROM bookings WHERE booking_id=%s", (booking_id,), fetch_one=True)
 
@@ -28,6 +46,11 @@ def create_booking():
     """Technician is chosen up front (from nearby-matching results) since
     bookings.technician_id is NOT NULL in the real schema."""
     data = request.get_json(force=True)
+
+    # A customer can only book for themselves
+    if session.get("role") == "customer":
+        data["customer_id"] = session["user_id"]
+
     customer_id = data.get("customer_id")
     technician_id = data.get("technician_id")
     service_id = data.get("service_id")
@@ -61,6 +84,8 @@ def get_booking(booking_id):
     booking = get_booking_or_none(booking_id)
     if not booking:
         return jsonify({"error": "Booking not found"}), 404
+    if not _can_access(booking):
+        return jsonify({"error": "Not allowed"}), 403
     return jsonify(booking)
 
 
@@ -69,11 +94,15 @@ def get_booking_status(booking_id):
     booking = get_booking_or_none(booking_id)
     if not booking:
         return jsonify({"error": "Booking not found"}), 404
+    if not _can_access(booking):
+        return jsonify({"error": "Not allowed"}), 403
     return jsonify({"booking_id": booking_id, "status": booking["status"]})
 
 
 @booking_bp.route("/customer/<int:customer_id>", methods=["GET"])
 def get_customer_bookings(customer_id):
+    if not _is_admin() and session["user_id"] != customer_id:
+        return jsonify({"error": "Not allowed"}), 403
     rows = run_query(
         "SELECT * FROM bookings WHERE customer_id=%s ORDER BY booking_date DESC",
         (customer_id,), fetch=True
@@ -83,6 +112,8 @@ def get_customer_bookings(customer_id):
 
 @booking_bp.route("/technician/<int:technician_id>", methods=["GET"])
 def get_technician_bookings(technician_id):
+    if not _is_admin() and session["user_id"] != technician_id:
+        return jsonify({"error": "Not allowed"}), 403
     rows = run_query(
         "SELECT * FROM bookings WHERE technician_id=%s ORDER BY booking_date DESC",
         (technician_id,), fetch=True
@@ -94,6 +125,8 @@ def _transition(booking_id, next_status, extra_set_sql="", extra_params=()):
     booking = get_booking_or_none(booking_id)
     if not booking:
         return jsonify({"error": "Booking not found"}), 404
+    if not _can_access(booking):
+        return jsonify({"error": "Not allowed"}), 403
 
     current_status = booking["status"]
     allowed = VALID_TRANSITIONS.get(current_status, [])
@@ -120,6 +153,12 @@ def mark_assigned(booking_id):
     data = request.get_json(silent=True) or {}
     new_technician_id = data.get("technician_id")
     if new_technician_id:
+        exists = run_query(
+            "SELECT technician_id FROM technicians WHERE technician_id=%s",
+            (new_technician_id,), fetch_one=True
+        )
+        if not exists:
+            return jsonify({"error": "Technician not found"}), 400
         return _transition(booking_id, "Assigned", ", technician_id=%s", (new_technician_id,))
     return _transition(booking_id, "Assigned")
 
@@ -151,16 +190,18 @@ def complete_booking(booking_id):
     data = request.get_json(silent=True) or {}
     final_cost = data.get("service_cost")
 
+    before = get_booking_or_none(booking_id)
+    was_completed = bool(before and before["status"] == "Completed")
+
     if final_cost is not None:
         response = _transition(booking_id, "Completed", ", service_cost=%s", (final_cost,))
     else:
         response = _transition(booking_id, "Completed")
 
-    # Only proceed to service_history if the transition actually succeeded
-    # (response is a tuple (jsonify_result, status_code) on failure, or just
-    # jsonify_result with implicit 200 on success — check status via booking).
+    # Only write history/reminder if THIS call moved it to Completed
+    # (not if it was already Completed, which would create duplicates).
     booking = get_booking_or_none(booking_id)
-    if booking and booking["status"] == "Completed":
+    if booking and booking["status"] == "Completed" and not was_completed:
         booking_detail = run_query(
             """SELECT b.booking_id, b.service_cost, s.name AS service_name,
                       sr.appliance_id
