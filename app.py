@@ -187,7 +187,7 @@ def create_app():
 
     @app.route("/services")
     def services():
-        return render_template("catalog.html")   # or send_from_directory(...) if it's a static file
+        return render_template("services/catalog.html")
     # ---------------------------------------------------------------
     # Serve CSS from styles/css (Flask's default static folder only
     # covers the top-level "static" directory, so this extra route
