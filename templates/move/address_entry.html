@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}Enter your move addresses{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>Where are you moving?</h1>
+  <p>Tell us your current and new addresses. We use them to find technicians near your new home.</p>
+</section>
+
+<div id="address-message" class="alert" role="alert" hidden></div>
+
+<form id="address-form" novalidate>
+
+  <!-- Current home -->
+  <section class="card">
+    <h2>Current home</h2>
+    <p class="muted">The place you are moving out of.</p>
+
+    <div class="form-group">
+      <label for="old-street">Street address</label>
+      <input type="text" id="old-street" name="old_street" autocomplete="address-line1" required>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="old-city">City</label>
+        <input type="text" id="old-city" name="old_city" autocomplete="address-level2" required>
+      </div>
+      <div class="form-group">
+        <label for="old-state">State</label>
+        <input type="text" id="old-state" name="old_state" autocomplete="address-level1" required>
+      </div>
+      <div class="form-group">
+        <label for="old-pincode">PIN code</label>
+        <input type="text" id="old-pincode" name="old_pincode" inputmode="numeric"
+               pattern="[0-9]{6}" maxlength="6" autocomplete="postal-code" required>
+      </div>
+    </div>
+  </section>
+
+  <!-- New home -->
+  <section class="card">
+    <h2>New home</h2>
+    <p class="muted">The place you are moving into.</p>
+
+    <div class="form-group">
+      <label for="new-street">Street address</label>
+      <input type="text" id="new-street" name="new_street" autocomplete="off" required>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="new-city">City</label>
+        <input type="text" id="new-city" name="new_city" autocomplete="off" required>
+      </div>
+      <div class="form-group">
+        <label for="new-state">State</label>
+        <input type="text" id="new-state" name="new_state" autocomplete="off" required>
+      </div>
+      <div class="form-group">
+        <label for="new-pincode">PIN code</label>
+        <input type="text" id="new-pincode" name="new_pincode" inputmode="numeric"
+               pattern="[0-9]{6}" maxlength="6" autocomplete="off" required>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="new-lat">Latitude <span class="muted">(optional)</span></label>
+        <input type="number" id="new-lat" name="new_lat" step="any">
+      </div>
+      <div class="form-group">
+        <label for="new-lon">Longitude <span class="muted">(optional)</span></label>
+        <input type="number" id="new-lon" name="new_lon" step="any">
+      </div>
+    </div>
+    <button type="button" class="btn btn-secondary" id="btn-locate">Use my current location</button>
+    <p class="muted" id="locate-status" role="status"></p>
+  </section>
+
+  <!-- Move details -->
+  <section class="card">
+    <h2>Move details</h2>
+
+    <div class="form-group">
+      <label for="move-date">Move date</label>
+      <input type="date" id="move-date" name="move_date" required>
+    </div>
+
+    <fieldset class="form-group">
+      <legend>Services you need at the new home</legend>
+      <div id="service-options" class="checkbox-list">
+        <label><input type="checkbox" name="services" value="electrical"> Electrical</label>
+        <label><input type="checkbox" name="services" value="plumbing"> Plumbing</label>
+        <label><input type="checkbox" name="services" value="ac"> AC service</label>
+        <label><input type="checkbox" name="services" value="appliances"> Appliances</label>
+      </div>
+    </fieldset>
+  </section>
+
+  <div class="flow-actions">
+    <p class="muted" id="form-hint">All fields except latitude and longitude are required.</p>
+    <button type="submit" class="btn btn-primary" id="btn-save">Find technicians</button>
+  </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+<script>
+(function () {
+  const form = document.getElementById('address-form');
+  const message = document.getElementById('address-message');
+  const saveBtn = document.getElementById('btn-save');
+  const locateBtn = document.getElementById('btn-locate');
+  const locateStatus = document.getElementById('locate-status');
+  const dateInput = document.getElementById('move-date');
+
+  // Move date cannot be in the past
+  dateInput.min = new Date().toISOString().split('T')[0];
+
+  function showMessage(text, type) {
+    message.textContent = text;
+    message.className = 'alert alert-' + type;
+    message.hidden = false;
+    message.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // Fill coordinates from the browser's location
+  locateBtn.addEventListener('click', function () {
+    if (!navigator.geolocation) {
+      locateStatus.textContent = 'Your browser does not support location. Enter the coordinates manually.';
+      return;
+    }
+    locateStatus.textContent = 'Getting your location…';
+    navigator.geolocation.getCurrentPosition(
+      function (pos) {
+        document.getElementById('new-lat').value = pos.coords.latitude.toFixed(6);
+        document.getElementById('new-lon').value = pos.coords.longitude.toFixed(6);
+        locateStatus.textContent = 'Location added.';
+      },
+      function () {
+        locateStatus.textContent = 'Could not get your location. Allow location access or enter it manually.';
+      }
+    );
+  });
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    message.hidden = true;
+
+    const data = new FormData(form);
+    const services = data.getAll('services');
+
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    if (services.length === 0) {
+      showMessage('Select at least one service you need.', 'error');
+      return;
+    }
+
+    const lat = data.get('new_lat');
+    const lon = data.get('new_lon');
+    if ((lat && !lon) || (!lat && lon)) {
+      showMessage('Enter both latitude and longitude, or leave both empty.', 'error');
+      return;
+    }
+
+    const payload = {
+      old_address: {
+        street: data.get('old_street').trim(),
+        city: data.get('old_city').trim(),
+        state: data.get('old_state').trim(),
+        pincode: data.get('old_pincode').trim()
+      },
+      new_address: {
+        street: data.get('new_street').trim(),
+        city: data.get('new_city').trim(),
+        state: data.get('new_state').trim(),
+        pincode: data.get('new_pincode').trim(),
+        latitude: lat ? parseFloat(lat) : null,
+        longitude: lon ? parseFloat(lon) : null
+      },
+      move_date: data.get('move_date'),
+      services: services
+    };
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving…';
+
+    try {
+      // Adjust the endpoint to match your Flask route
+      const res = await fetch('/api/moves', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result.error || 'Could not save your addresses.');
+      }
+      // Go to the technician search page for this move
+      window.location.href = '/move/' + result.move_id + '/search';
+    } catch (err) {
+      showMessage(err.message, 'error');
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Find technicians';
+    }
+  });
+})();
+</script>
+{% endblock %}
