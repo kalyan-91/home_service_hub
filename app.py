@@ -176,6 +176,10 @@ def create_app():
     def technician_dashboard_page():
         return render_template("dashboards/technician_dashboard.html")
 
+    @app.route("/technicians/nearby")
+    def technicians_nearby_page():
+        return render_template("technician/nearby_list.html")
+
     # ---------------------------------------------------------------
     # Serve CSS from styles/css (Flask's default static folder only
     # covers the top-level "static" directory, so this extra route
