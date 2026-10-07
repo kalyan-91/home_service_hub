@@ -74,6 +74,7 @@ def create_app():
     app.register_blueprint(payments_bp)
     app.register_blueprint(maintenance_bp)
     app.register_blueprint(reviews_bp)
+    app.register_blueprint(move_customer_bp)
 
     # Makes {{ current_user_id }} available in every template, so pages can set
     # window.CURRENT_USER_ID = {{ current_user_id | tojson }};
