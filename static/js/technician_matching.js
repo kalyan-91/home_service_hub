@@ -3,20 +3,28 @@
  * (Phase 10: nearby-technician list/map view for a chosen service)
  *
  * Backend: POST /api/move/nearby-technicians {service_id, latitude, longitude}
- *   -> [{technician_id, name, distance_km, rating, experience_years}]
- * This is the same endpoint templates/move/technician_search.html uses — the
- * project structure doc assigns Phase 10 to routes/move.py's matching logic /
- * services/technician_matching.py, and no separate non-move endpoint exists.
- * Already flagged to Pavan earlier: technician_matching.py's SQL references
- * columns that don't match schema.sql (t.name, t.rating, ts.experience_years,
- * ts.skill_id = service_id) and will error until he fixes it — that fix
- * benefits this page too, not just Move Mode.
+ *   -> [{technician_id, service_area, verification_status, distance_km,
+ *        average_rating, review_count, match_score,
+ *        price_range, price_low, price_high, budget_status}]
+ * (services/technician_matching.py was rewritten since this file was first
+ * built — the response no longer includes "name", "rating" (now
+ * "average_rating"), or any experience field. This file now fetches each
+ * technician's name and years_experience separately from the endpoint
+ * below, rather than waiting on a backend change.)
+ *   GET /api/technicians/<id> -> {name, years_experience, skills: [...]}
+ *
+ * Same endpoint as templates/move/technician_search.html — flag to Pavan if
+ * he wants a day/time/budget picker added to this page later, since
+ * find_nearby_technicians() now supports those but routes/move.py's
+ * /nearby-technicians route doesn't forward them yet (only service_id, lat,
+ * lon). Not required for this page to work; it just means every search
+ * uses today's availability and no budget filter.
  *
  * Map view needs a mapping library the team doesn't have yet (see the note
  * in move_matching.js) — shown as "coming soon" here for the same reason.
  *
- * Uses the shared helper from static/js/api.js: apiPost(url, body).
- * ASSUMPTION: it returns parsed JSON and throws an Error with a readable
+ * Uses the shared helpers from static/js/api.js: apiGet(url), apiPost(url, body).
+ * ASSUMPTION: they return parsed JSON and throw an Error with a readable
  * message when the request fails.
  */
 
@@ -81,21 +89,35 @@ $('coords-form').addEventListener('submit', (event) => {
   searchFrom(Number($('c-lat').value), Number($('c-lon').value));
 });
 
+/* ---------- enrich with name + experience ---------- */
+async function enrichWithProfile(tech) {
+  try {
+    const profile = await apiGet(`/api/technicians/${tech.technician_id}`); // api.js
+    tech.name = profile.name;
+    tech.years_experience = profile.years_experience;
+  } catch (err) {
+    tech.name = 'Technician #' + tech.technician_id; // enrichment failed: still show the card
+    tech.years_experience = null;
+  }
+  return tech;
+}
+
 /* ---------- search ---------- */
 async function searchFrom(latitude, longitude) {
   const list = $('nearby-list');
   list.innerHTML = '<p class="muted">Finding technicians…</p>';
   $('view-toggle').hidden = true;
   try {
-    technicians = await apiPost('/api/move/nearby-technicians', { // api.js
+    const matches = await apiPost('/api/move/nearby-technicians', { // api.js
       service_id: Number(SERVICE_ID),
       latitude,
       longitude,
     });
-    if (!technicians.length) {
+    if (!matches.length) {
       list.innerHTML = '<p class="muted">No technicians found nearby for this service yet.</p>';
       return;
     }
+    technicians = await Promise.all(matches.map(enrichWithProfile));
     $('view-toggle').hidden = false;
     renderView();
   } catch (err) {
@@ -105,18 +127,23 @@ async function searchFrom(latitude, longitude) {
 }
 
 /* ---------- rendering ---------- */
-function technicianId(t) { return t.technician_id ?? t.user_id; }
+function priceLine(t) {
+  if (!t.price_range) return '';
+  const note = t.budget_status === 'over_budget' ? ' (over your budget)' : '';
+  return `<span class="muted">${escapeHtml(t.price_range)}${note}</span>`;
+}
 
 function renderList() {
   $('nearby-list').hidden = false;
   $('nearby-map').hidden = true;
   $('nearby-list').innerHTML = technicians.map((t) => `
-    <a class="item-row tech-row" href="/bookings/new?service_id=${SERVICE_ID}&technician_id=${technicianId(t)}">
+    <a class="item-row tech-row" href="/bookings/new?service_id=${SERVICE_ID}&technician_id=${t.technician_id}">
       <span class="avatar">${escapeHtml(initials(t.name))}</span>
       <span class="tech-info">
         <span class="tech-name">${escapeHtml(t.name)}</span>
-        <span class="muted">${t.distance_km != null ? escapeHtml(t.distance_km) + ' km away' : ''} · ${escapeHtml(t.experience_years ?? 0)} yrs experience</span>
-        <span class="tech-stars">${stars(t.rating)} <span class="muted">${t.rating ? Number(t.rating).toFixed(1) : 'New'}</span></span>
+        <span class="muted">${t.distance_km != null ? escapeHtml(t.distance_km) + ' km away' : ''}${t.years_experience != null ? ' · ' + escapeHtml(t.years_experience) + ' yrs experience' : ''}</span>
+        <span class="tech-stars">${stars(t.average_rating)} <span class="muted">${t.average_rating ? Number(t.average_rating).toFixed(1) : 'New'}</span></span>
+        ${priceLine(t)}
       </span>
     </a>`).join('');
 }
