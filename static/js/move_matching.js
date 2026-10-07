@@ -4,9 +4,16 @@
  *
  * Backend (routes/move.py):
  *   POST /api/move/required-services   {appliances:[{appliance_id, category}]}
- *        -> [{appliance_id, category, required_service, estimated_price, service_id?}]
+ *        -> [{appliance_id, category, required_service, estimated_price}]
  *   POST /api/move/nearby-technicians  {service_id, latitude, longitude}
- *        -> [{technician_id, name, distance_km, rating, experience_years}]
+ *        -> [{technician_id, service_area, verification_status, distance_km,
+ *             average_rating, review_count, match_score,
+ *             price_range, price_low, price_high, budget_status}]
+ * (services/technician_matching.py was rewritten since this file was first
+ * built — the response no longer includes "name", "rating" (now
+ * "average_rating"), or any experience field. This file now fetches each
+ * technician's name and years_experience separately — see enrichWithProfile.)
+ *   GET /api/technicians/<id> -> {name, years_experience, skills: [...]}
  *
  * HAND-OFF WITH MEGHANA (Move Mode part 1). Her steps save the customer's choices
  * in sessionStorage under the key "moveDraft", and this page reads and extends it:
@@ -21,9 +28,9 @@
  *                        technician_id, technician_name, distance_km } }
  * Meghana's cost-estimate step reads draft.selections.
  *
- * Uses the shared helper from static/js/api.js: apiPost(url, body).
- * ASSUMPTION: it returns parsed JSON and throws an Error with a readable message
- * when the request fails.
+ * Uses the shared helpers from static/js/api.js: apiGet(url), apiPost(url, body).
+ * ASSUMPTION: they return parsed JSON and throw an Error with a readable
+ * message when the request fails.
  */
 
 const DRAFT_KEY = 'moveDraft';
@@ -102,6 +109,19 @@ async function resolveServiceId(group) {
   return match ? match.service_id : null;
 }
 
+/* ---------- enrich with name + experience ---------- */
+async function enrichWithProfile(tech) {
+  try {
+    const profile = await apiGet(`/api/technicians/${tech.technician_id}`); // api.js
+    tech.name = profile.name;
+    tech.years_experience = profile.years_experience;
+  } catch (err) {
+    tech.name = 'Technician #' + tech.technician_id; // enrichment failed: still show the card
+    tech.years_experience = null;
+  }
+  return tech;
+}
+
 /* ---------- technicians per service ---------- */
 async function loadTechnicians(group) {
   group.status = 'loading';
@@ -114,13 +134,13 @@ async function loadTechnicians(group) {
       return;
     }
     group.service_id = serviceId;
-    const rows = await apiPost('/api/move/nearby-technicians', { // api.js
+    const matches = await apiPost('/api/move/nearby-technicians', { // api.js
       service_id: serviceId,
       latitude: coordinates.latitude,
       longitude: coordinates.longitude,
     });
-    group.technicians = rows;
-    group.status = rows.length ? 'ready' : 'empty';
+    group.technicians = await Promise.all(matches.map(enrichWithProfile));
+    group.status = group.technicians.length ? 'ready' : 'empty';
   } catch (err) {
     group.status = 'error';
     group.error = err.message;
@@ -129,9 +149,13 @@ async function loadTechnicians(group) {
   }
 }
 
-function technicianId(t) { return t.technician_id ?? t.user_id; }
-
 /* ---------- rendering ---------- */
+function priceLine(t) {
+  if (!t.price_range) return '';
+  const note = t.budget_status === 'over_budget' ? ' (over budget)' : '';
+  return ` · ${escapeHtml(t.price_range)}${note}`;
+}
+
 function technicianList(group) {
   if (group.status === 'loading') return '<p class="muted">Finding technicians…</p>';
   if (group.status === 'error') {
@@ -142,15 +166,13 @@ function technicianList(group) {
     return '<p class="muted">No technicians found near your new home for this service yet.</p>';
   }
   return '<div class="option-list">' + group.technicians.map((t) => {
-    const id = technicianId(t);
-    const selected = group.selected && group.selected.technician_id === id;
-    const years = t.experience_years ?? t.years_experience ?? 0;
+    const selected = group.selected && group.selected.technician_id === t.technician_id;
     return `
       <button type="button" class="option-item ${selected ? 'is-selected' : ''}"
-              data-group="${escapeHtml(group.key)}" data-tech="${id}" aria-pressed="${selected}">
+              data-group="${escapeHtml(group.key)}" data-tech="${t.technician_id}" aria-pressed="${selected}">
         <span class="option-title">${escapeHtml(t.name)}</span>
-        <span class="option-meta">${t.distance_km != null ? escapeHtml(t.distance_km) + ' km away' : ''} · ${escapeHtml(years)} yrs experience</span>
-        <span class="option-price">${t.rating ? Number(t.rating).toFixed(1) + ' ★' : 'New'}</span>
+        <span class="option-meta">${t.distance_km != null ? escapeHtml(t.distance_km) + ' km away' : ''}${t.years_experience != null ? ' · ' + escapeHtml(t.years_experience) + ' yrs experience' : ''}${priceLine(t)}</span>
+        <span class="option-price">${t.average_rating ? Number(t.average_rating).toFixed(1) + ' ★' : 'New'}</span>
       </button>`;
   }).join('') + '</div>';
 }
@@ -182,9 +204,9 @@ $('service-blocks').addEventListener('click', (event) => {
   const option = event.target.closest('[data-tech]');
   if (!option) return;
   const group = groups.find((g) => g.key === option.dataset.group);
-  const tech = group.technicians.find((t) => String(technicianId(t)) === option.dataset.tech);
+  const tech = group.technicians.find((t) => String(t.technician_id) === option.dataset.tech);
   group.selected = {
-    technician_id: technicianId(tech),
+    technician_id: tech.technician_id,
     technician_name: tech.name,
     distance_km: tech.distance_km ?? null,
   };
