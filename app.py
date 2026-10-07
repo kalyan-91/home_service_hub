@@ -14,6 +14,7 @@ from routes.services import services_bp
 from routes.admin import admin_bp
 from routes.booking import booking_bp
 from routes.move import move_bp
+from routes.move_customer import move_customer_bp
 from routes.payments import payments_bp
 from routes.reviews import reviews_bp
 from services.maintenance import maintenance_bp
