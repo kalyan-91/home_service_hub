@@ -84,6 +84,7 @@ def create_app():
     @app.route("/")
     def home():
         return render_template("home.html")
+
     # Backend health check moved here
     @app.route("/health")
     def health_check():
@@ -139,6 +140,10 @@ def create_app():
     # def technician_detail_page(technician_id):
     #     return render_template("technicians/detail.html")
 
+    # Services catalog (templates/services/catalog.html).
+    # NOTE: make sure this exact file in templates/services/ on the server
+    # is the one you're editing locally — a single route only reflects
+    # whatever is actually deployed there.
     @app.route("/services")
     def services_catalog_page():
         return render_template("services/catalog.html")
@@ -185,9 +190,6 @@ def create_app():
     def technician_login_page():
         return render_template("auth/technician_login.html")
 
-    @app.route("/services")
-    def services():
-        return render_template("services/catalog.html")
     # ---------------------------------------------------------------
     # Serve CSS from styles/css (Flask's default static folder only
     # covers the top-level "static" directory, so this extra route
