@@ -2,6 +2,11 @@ from functools import wraps
 from flask import Blueprint, request, jsonify, session
 from database.connection import get_db_connection, run_query
 
+# Reuses Pavan's pricing table and category-normalization logic so the two
+# sides compute the exact same answer, instead of keeping a second copy here
+# that could quietly drift out of sync with his.
+from routes.move import DEFAULT_SERVICE_PRICES, _category_to_service_key
+
 # Customer side of Move Mode (Member 1): new address + appliance transfer.
 # Required-service matching and cost estimation stay in Member 3's routes/move.py;
 # they read the appliances saved in move_appliances by /start below.
@@ -200,3 +205,51 @@ def complete_move(move_id):
         conn.close()
 
     return jsonify({"message": "Move completed", "new_home_id": move["new_home_id"]})
+
+
+# ---------------------------------------------------------------
+# Match required services and write them back onto move_appliances
+# ---------------------------------------------------------------
+# /start leaves required_service_type null (Member 1's side didn't know the
+# required service yet). Pavan's /api/move/required-services and
+# /api/move/cost-estimate compute the answer but only return it — nothing
+# saves it. This endpoint closes that gap: it reuses his exact pricing table
+# and category logic, writes the result onto this move's move_appliances
+# rows, and returns the same cost breakdown his /cost-estimate does, so the
+# frontend can call this one endpoint instead of three separate ones.
+
+@move_customer_bp.route("/<int:move_id>/match-services", methods=["POST"])
+@login_required
+def match_required_services(move_id):
+    move = _get_move(move_id, session["user_id"])
+    if not move:
+        return jsonify({"error": "Move request not found"}), 404
+
+    appliances = _move_appliances(move_id)
+    if not appliances:
+        return jsonify({"error": "This move has no appliances to match"}), 400
+
+    breakdown = []
+    total = 0
+    for appliance in appliances:
+        service_key = _category_to_service_key(appliance["category"])
+        price = DEFAULT_SERVICE_PRICES.get(service_key, 300)
+        total += price
+
+        run_query(
+            "UPDATE move_appliances SET required_service_type = %s WHERE move_appliance_id = %s",
+            (service_key, appliance["move_appliance_id"]), commit=True,
+        )
+        breakdown.append({
+            "appliance_id": appliance["appliance_id"],
+            "name": appliance["name"],
+            "category": appliance["category"],
+            "required_service": service_key,
+            "estimated_price": price,
+        })
+
+    return jsonify({
+        "move_request_id": move_id,
+        "breakdown": breakdown,
+        "estimated_total": total,
+    })
