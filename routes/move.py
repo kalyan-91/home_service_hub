@@ -84,25 +84,3 @@ def cost_estimate():
     return jsonify({"breakdown": breakdown, "estimated_total": total})
 
 
-@move_bp.route("/requests", methods=["POST"])
-def create_move_request():
-    data = request.get_json(force=True)
-    required = ["customer_id", "old_home_id", "new_home_id"]
-    missing = [f for f in required if f not in data]
-    if missing:
-        return jsonify({"error": f"Missing fields: {', '.join(missing)}"}), 400
-
-    move_id = run_query(
-        """INSERT INTO move_requests (customer_id, old_home_id, new_home_id, move_status)
-           VALUES (%s, %s, %s, 'Pending')""",
-        (data["customer_id"], data["old_home_id"], data["new_home_id"]), commit=True
-    )
-
-    for appliance in data.get("appliances", []):
-        run_query(
-            """INSERT INTO move_appliances (move_request_id, appliance_id, required_service_type)
-               VALUES (%s, %s, %s)""",
-            (move_id, appliance.get("appliance_id"), appliance.get("required_service")), commit=True
-        )
-
-    return jsonify({"message": "Move request created", "move_request_id": move_id}), 201
