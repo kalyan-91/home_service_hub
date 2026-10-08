@@ -306,3 +306,45 @@ def delete_appliance(appliance_id):
         return jsonify({"error": "This appliance has service history or requests and cannot be deleted"}), 409
     run_query("DELETE FROM appliances WHERE appliance_id = %s", (appliance_id,), commit=True)
     return jsonify({"message": "Appliance deleted"})
+
+
+# ---------------------------------------------------------------
+# Service History (read-only — Pavan's booking/completion flow writes
+# these rows; this is the customer's view of their own history)
+# ---------------------------------------------------------------
+
+@customer_bp.route("/appliances/<int:appliance_id>/history", methods=["GET"])
+@login_required()
+def appliance_history(appliance_id):
+    owned = run_query(
+        """SELECT a.appliance_id FROM appliances a JOIN homes h ON h.home_id = a.home_id
+           WHERE a.appliance_id = %s AND h.customer_id = %s""",
+        (appliance_id, session["user_id"]), fetch_one=True,
+    )
+    if not owned:
+        return jsonify({"error": "Appliance not found"}), 404
+
+    history = run_query(
+        """SELECT history_id, service_type, cost, completed_date, notes, booking_id
+           FROM service_history WHERE appliance_id = %s
+           ORDER BY completed_date DESC""",
+        (appliance_id,), fetch=True,
+    )
+    return jsonify(history)
+
+
+@customer_bp.route("/history", methods=["GET"])
+@login_required()
+def full_service_history():
+    """Service history across every appliance the customer owns, most recent first."""
+    history = run_query(
+        """SELECT sh.history_id, sh.appliance_id, a.name AS appliance_name, a.category,
+                  sh.service_type, sh.cost, sh.completed_date, sh.notes
+           FROM service_history sh
+           JOIN appliances a ON a.appliance_id = sh.appliance_id
+           JOIN homes h ON h.home_id = a.home_id
+           WHERE h.customer_id = %s
+           ORDER BY sh.completed_date DESC""",
+        (session["user_id"],), fetch=True,
+    )
+    return jsonify(history)
