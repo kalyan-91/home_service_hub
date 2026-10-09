@@ -114,12 +114,23 @@ def add_home():
     if not data.get("address") or not data.get("city"):
         return jsonify({"error": "address and city are required"}), 400
 
+    status = data.get("status", "current")
+    if status not in ("current", "previous"):
+        return jsonify({"error": "status must be 'current' or 'previous'"}), 400
+
+    # Only one home can be current: a new current home demotes the others
+    if status == "current":
+        run_query(
+            "UPDATE homes SET status = 'previous' WHERE customer_id = %s",
+            (session["user_id"],), commit=True,
+        )
+
     home_id = run_query(
         """INSERT INTO homes (customer_id, address, city, state, pincode, latitude, longitude, home_type, status)
            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
         (session["user_id"], data["address"], data["city"], data.get("state"),
          data.get("pincode"), data.get("latitude"), data.get("longitude"),
-         data.get("home_type", "owned"), data.get("status", "current")),
+         data.get("home_type", "owned"), status),
         commit=True,
     )
     return jsonify({"message": "Home added", "home_id": home_id}), 201
@@ -190,6 +201,8 @@ def delete_home(home_id):
 @login_required()
 def set_current_home(home_id):
     user_id = session["user_id"]
+    if not _home_belongs_to_customer(home_id, user_id):
+        return jsonify({"error": "Home not found"}), 404
     run_query("UPDATE homes SET status = 'previous' WHERE customer_id = %s", (user_id,), commit=True)
     run_query(
         "UPDATE homes SET status = 'current' WHERE home_id = %s AND customer_id = %s",
