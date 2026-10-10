@@ -126,6 +126,8 @@ def set_availability():
     missing = [f for f in required if not data.get(f)]
     if missing:
         return jsonify({"error": f"Missing fields: {', '.join(missing)}"}), 400
+            if data["day_of_week"] not in DAYS_OF_WEEK:
+        return jsonify({"error": f"day_of_week must be one of: {', '.join(DAYS_OF_WEEK)}"}), 400
 
     availability_id = run_query(
         """INSERT INTO technician_availability (technician_id, day_of_week, start_time, end_time, available)
