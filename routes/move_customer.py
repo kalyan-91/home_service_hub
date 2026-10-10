@@ -18,6 +18,13 @@ def login_required(fn):
     def wrapper(*args, **kwargs):
         if "user_id" not in session or session.get("role") != "customer":
             return jsonify({"error": "Login required"}), 401
+        # Sessions are signed cookies that outlive deactivation, so re-check the account
+        account = run_query(
+            "SELECT status FROM users WHERE user_id = %s", (session["user_id"],), fetch_one=True,
+        )
+        if not account or account["status"] != "active":
+            session.clear()
+            return jsonify({"error": "Login required"}), 401
         return fn(*args, **kwargs)
     return wrapper
 
