@@ -5,6 +5,14 @@ from database.connection import run_query
 
 customer_bp = Blueprint("customer", __name__, url_prefix="/api/customer")
 
+# Must match the ENUM definitions in the schema. Anything else would make MySQL
+# reject the insert and the customer would see a 500 instead of a clear message.
+APPLIANCE_CATEGORIES = (
+    "Fan", "Light", "AC", "Refrigerator", "Washing Machine",
+    "TV", "Geyser", "RO Purifier", "Microwave", "Inverter", "Other",
+)
+HOME_TYPES = ("owned", "rented", "other")
+
 
 def login_required(role="customer"):
     def decorator(fn):
@@ -117,6 +125,8 @@ def add_home():
     status = data.get("status", "current")
     if status not in ("current", "previous"):
         return jsonify({"error": "status must be 'current' or 'previous'"}), 400
+    if data.get("home_type", "owned") not in HOME_TYPES:
+        return jsonify({"error": f"home_type must be one of: {', '.join(HOME_TYPES)}"}), 400
 
     # Only one home can be current: a new current home demotes the others
     if status == "current":
@@ -159,6 +169,8 @@ def update_home(home_id):
             params.append(data[field])
     if not fields:
         return jsonify({"error": "Nothing to update"}), 400
+    if "home_type" in data and data["home_type"] not in HOME_TYPES:
+        return jsonify({"error": f"home_type must be one of: {', '.join(HOME_TYPES)}"}), 400
     params += [home_id, session["user_id"]]
     run_query(
         f"UPDATE homes SET {', '.join(fields)} WHERE home_id = %s AND customer_id = %s",
@@ -256,6 +268,8 @@ def add_appliance(home_id):
     data = request.get_json(force=True)
     if not data.get("name") or not data.get("category"):
         return jsonify({"error": "name and category are required"}), 400
+    if data["category"] not in APPLIANCE_CATEGORIES:
+        return jsonify({"error": f"category must be one of: {', '.join(APPLIANCE_CATEGORIES)}"}), 400
 
     appliance_id = run_query(
         """INSERT INTO appliances (home_id, name, category, brand, model, purchase_date, warranty_expiry)
@@ -291,6 +305,8 @@ def update_appliance(appliance_id):
             params.append(data[field])
     if not fields:
         return jsonify({"error": "Nothing to update"}), 400
+    if "category" in data and data["category"] not in APPLIANCE_CATEGORIES:
+        return jsonify({"error": f"category must be one of: {', '.join(APPLIANCE_CATEGORIES)}"}), 400
 
     owned = run_query(
         """SELECT a.appliance_id FROM appliances a JOIN homes h ON h.home_id = a.home_id
