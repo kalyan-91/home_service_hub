@@ -3,6 +3,7 @@ from flask import Blueprint, request, jsonify, session
 from database.connection import run_query
 
 technician_bp = Blueprint("technician", __name__, url_prefix="/api/technician")
+DAYS_OF_WEEK = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
 
 def login_required(fn):
